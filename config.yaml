@@ -78,7 +78,7 @@ parameters:
 
     # Relative Permittivity (PCBM 3.9)
     - RelativePermittivity:
-        Relative Permittivity (PCBM 3.9)
+        - Relative Permittivity (PCBM 3.9)
 
     # Define the work function of the electrodes [eV]
     - workX:
@@ -317,7 +317,9 @@ parameters:
     #File format is as follows
     #xposition yposition zposition chargeid TimeSpentOnSite GlobalTime
     - NumChargesTrack:
+        -
     - PathFile:
+        -
 
     #Log File .log
     #File contains information of interest of the simulation
