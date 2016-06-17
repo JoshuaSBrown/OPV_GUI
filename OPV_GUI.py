@@ -35,13 +35,13 @@ class MainWindow(QtGui.QWidget):
         self.primaryLayout.addWidget(self.saveButton)
         self.primaryLayout.addWidget(self.scrollArea)
         
-        self.paramDic = {}
+        self.paramDic = []
         index = 0
         config = self.parseConfig()
         
         for key1, val1 in config.iteritems():
             for param in val1:
-                print param
+                #print param
                 for key2, val2 in param.iteritems():
                     
                     if len(val2) == 1:
@@ -57,7 +57,7 @@ class MainWindow(QtGui.QWidget):
                         self.paramObjects = []
                         self.paramObjects.append(self.paramName)
                         self.paramObjects.append(self.lineEdit)
-                        self.paramDic[key2] = self.paramObjects
+                        self.paramDic.append(self.paramObjects)
 
                     else:
                         
@@ -76,10 +76,10 @@ class MainWindow(QtGui.QWidget):
                                 self.comboBox.setToolTip(val2[0])
                                 self.secondaryLayout.addWidget(self.comboBox, index, 1)
 
-                                self.paramObjects = []
-                                self.paramObjects.append(self.paramName)
-                                self.paramObjects.append(self.comboBox)
-                                self.paramDic[key2] = self.paramObjects
+                        self.paramObjects = []
+                        self.paramObjects.append(self.paramName)
+                        self.paramObjects.append(self.comboBox)
+                        self.paramDic.append(self.paramObjects)
                                
 
                         if key2 == "method":
@@ -90,8 +90,8 @@ class MainWindow(QtGui.QWidget):
                     index = index + 1
    
         # testing purposes
-        #for k, v in self.paramDic.iteritems():
-            #print k, v
+        #for index3, value3 in enumerate(self.paramDic):
+        #    print self.paramDic[index3][0].text()
 
         self.setLayout(self.primaryLayout)
         self.resize(300, 600)
@@ -118,8 +118,6 @@ class MainWindow(QtGui.QWidget):
             self.paramDic["NCh"][1].clear()
             self.paramDic["NCh"][1].setEnabled(True)
 
-
-
         else:
 
             self.paramDic["NCh"][1].setText("0")
@@ -133,25 +131,7 @@ class MainWindow(QtGui.QWidget):
 
             self.paramDic["Tlag"][1].clear()
             self.paramDic["Tlag"][1].setEnabled(True)
-
-
-
-
-
-
-
-
-        """
-        if method = 0
-        Tcv = 0.0
-        Vcv = 0.0
-        Tlag = 0.0
-
-        if method = 1
-        NCh = 0
-        """
-        
-
+    
     def loadFile(self):
 
         loadFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load file', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI')
@@ -159,6 +139,24 @@ class MainWindow(QtGui.QWidget):
     def saveFile(self):
 
         saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt')
+        #saveFile = open(saveFileName, 'w')
+
+        with open(saveFileName, 'a') as saveFile:
+            for index, value in enumerate(self.paramDic):
+                #print self.paramDic[index][0].text(), self.paramDic[index][1].text()
+                
+                try:
+
+                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text() + "\n"
+                    print data
+                    saveFile.write(data)
+                   
+                except AttributeError:
+                        
+                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].currentText() + "\n"
+                    print data
+                    saveFile.write(data)
+                    
 
     def parseConfig(self):
 
