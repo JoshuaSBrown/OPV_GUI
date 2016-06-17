@@ -20,7 +20,13 @@ class MainWindow(QtGui.QWidget):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         
         self.loadButton = QtGui.QPushButton("Load")
+        self.loadButton.clicked.connect(self.loadFile)
+       
+        self.saveButton = QtGui.QPushButton("Save")
+        self.saveButton.clicked.connect(self.saveFile)
+
         self.primaryLayout.addWidget(self.loadButton)
+        self.primaryLayout.addWidget(self.saveButton)
         self.primaryLayout.addWidget(self.scrollArea)
         
         index = 0
@@ -59,6 +65,14 @@ class MainWindow(QtGui.QWidget):
         self.center()
         self.setWindowTitle('OPV GUI')
         self.show()
+
+    def loadFile(self):
+
+        loadFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load file', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI')
+    
+    def saveFile(self):
+
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt')
 
     def parseConfig(self):
 
