@@ -9,6 +9,7 @@ Contact: soo.park@colorado.edu
 
 import sys
 import yaml
+import re
 from PyQt4 import QtGui, QtCore
 
 class MainWindow(QtGui.QWidget):
@@ -101,36 +102,36 @@ class MainWindow(QtGui.QWidget):
 
     def methodParamSetup(self):
         
-        method = self.paramDic["method"][1].currentText()
+        method = self.paramDic[0][1].currentText()
         method = int(method)
         
         if method == 0:
-            
-            self.paramDic["Tcv"][1].setText("0.0")
-            self.paramDic["Tcv"][1].setEnabled(False)
+           
+            self.paramDic[74][1].setText("0.0")
+            self.paramDic[74][1].setEnabled(False)
 
-            self.paramDic["Vcv"][1].setText("0.0")
-            self.paramDic["Vcv"][1].setEnabled(False)
+            self.paramDic[75][1].setText("0.0")
+            self.paramDic[75][1].setEnabled(False)
 
-            self.paramDic["Tlag"][1].setText("0.0")
-            self.paramDic["Tlag"][1].setEnabled(False)
+            self.paramDic[76][1].setText("0.0")
+            self.paramDic[76][1].setEnabled(False)
 
-            self.paramDic["NCh"][1].clear()
-            self.paramDic["NCh"][1].setEnabled(True)
+            self.paramDic[48][1].clear()
+            self.paramDic[48][1].setEnabled(True)
 
         else:
 
-            self.paramDic["NCh"][1].setText("0")
-            self.paramDic["NCh"][1].setEnabled(False)
+            self.paramDic[48][1].setText("0")
+            self.paramDic[48][1].setEnabled(False)
 
-            self.paramDic["Tcv"][1].clear()
-            self.paramDic["Tcv"][1].setEnabled(True)
+            self.paramDic[74][1].clear()
+            self.paramDic[74][1].setEnabled(True)
 
-            self.paramDic["Vcv"][1].clear()
-            self.paramDic["Vcv"][1].setEnabled(True)
+            self.paramDic[75][1].clear()
+            self.paramDic[75][1].setEnabled(True)
 
-            self.paramDic["Tlag"][1].clear()
-            self.paramDic["Tlag"][1].setEnabled(True)
+            self.paramDic[76][1].clear()
+            self.paramDic[76][1].setEnabled(True)
     
     def loadFile(self):
 
@@ -138,13 +139,62 @@ class MainWindow(QtGui.QWidget):
     
     def saveFile(self):
 
+        period = 0
+        elec = 0
+        end = 0
+        xyz = 0
+        
+        """
+        for index, value in enumerate(self.paramDic):
+           
+            # X
+            if (self.paramDic[index][0].text() == "PeriodicX" and self.paramDic[index][1].currentText() == "1"):
+                print "1", self.paramDic[index][1].currentText()
+                period = 1
+            if (self.paramDic[index][0].text() == "XElecOn" and self.paramDic[index][1].currentText() == "1"):
+                print "2", self.paramDic[index][1].currentText()
+                elec = 1
+            if (self.paramDic[index][0].text() == "EndX" and self.paramDic[index][1].currentText() == "0"):
+                print "3", self.paramDic[index][1].currentText()
+                end = 1
+                xyz = "X"
+
+            # Y
+            if (self.paramDic[index][0].text() == "PeriodicY" and self.paramDic[index][1].currentText() == "1"):
+                print "1", self.paramDic[index][1].currentText()
+                period = 1
+            if (self.paramDic[index][0].text() == "YElecOn" and self.paramDic[index][1].currentText() == "1"):
+                print "2", self.paramDic[index][1].currentText()
+                elec = 1
+            if (self.paramDic[index][0].text() == "EndY" and self.paramDic[index][1].currentText() == "0"):
+                print "3", self.paramDic[index][1].currentText()
+                end = 1
+                xyz = "Y"
+
+            # Z
+            if (self.paramDic[index][0].text() == "PeriodicZ" and self.paramDic[index][1].currentText() == "1"):
+                print "1", self.paramDic[index][1].currentText()
+                period = 1
+            if (self.paramDic[index][0].text() == "ZElecOn" and self.paramDic[index][1].currentText() == "1"):
+                print "2", self.paramDic[index][1].currentText()
+                elec = 1
+            if (self.paramDic[index][0].text() == "EndZ" and self.paramDic[index][1].currentText() == "0"):
+                print "3", self.paramDic[index][1].currentText()
+                end = 1
+                xyz = "Z"
+
+        if (period == 1 and elec == 1 and end == 1):
+            QtGui.QMessageBox.about(self, "My message box", "Periodic%s = 1, %sElecOn = 1, therefore End%s cannot be 0. Please go back and edit End%s." % (xyz, xyz, xyz, xyz))
+            return 
+        """
+
+
         saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt')
         #saveFile = open(saveFileName, 'w')
 
         with open(saveFileName, 'a') as saveFile:
             for index, value in enumerate(self.paramDic):
                 #print self.paramDic[index][0].text(), self.paramDic[index][1].text()
-                
                 try:
 
                     data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text() + "\n"
