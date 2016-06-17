@@ -35,6 +35,7 @@ class MainWindow(QtGui.QWidget):
         self.primaryLayout.addWidget(self.saveButton)
         self.primaryLayout.addWidget(self.scrollArea)
         
+        self.paramDic = {}
         index = 0
         config = self.parseConfig()
         
@@ -52,29 +53,104 @@ class MainWindow(QtGui.QWidget):
                         self.lineEdit = QtGui.QLineEdit()
                         self.lineEdit.setToolTip(val2[0])
                         self.secondaryLayout.addWidget(self.lineEdit, index, 1)
-                    
+                        
+                        self.paramObjects = []
+                        self.paramObjects.append(self.paramName)
+                        self.paramObjects.append(self.lineEdit)
+                        self.paramDic[key2] = self.paramObjects
+
                     else:
                         
-                        # Parameter Names
+                        #print key2, val2
                         self.paramName = QtGui.QLabel(key2)
                         self.paramName.setToolTip(val2[0])
                         self.secondaryLayout.addWidget(self.paramName, index, 0)
 
-                        # Combo Box for options
                         self.comboBox = QtGui.QComboBox()
-                        for order, items in enumerate(val2):
-                            if order > 0:
-                                self.comboBox.addItems(str(items))
+                       
+                        for index2 in range(0, len(val2)):
+                            if index2 > 0:
+                                
+                                self.comboBox.addItems(str(val2[index2]))
+                                self.comboBox.setCurrentIndex(-1)
                                 self.comboBox.setToolTip(val2[0])
                                 self.secondaryLayout.addWidget(self.comboBox, index, 1)
-                    
+
+                                self.paramObjects = []
+                                self.paramObjects.append(self.paramName)
+                                self.paramObjects.append(self.comboBox)
+                                self.paramDic[key2] = self.paramObjects
+                               
+
+                        if key2 == "method":
+                            
+                            self.comboBox.currentIndexChanged.connect(lambda: self.methodParamSetup())
+                            
+
                     index = index + 1
+   
+        # testing purposes
+        #for k, v in self.paramDic.iteritems():
+            #print k, v
 
         self.setLayout(self.primaryLayout)
         self.resize(300, 600)
         self.center()
         self.setWindowTitle('OPV GUI')
         self.show()
+
+    def methodParamSetup(self):
+        
+        method = self.paramDic["method"][1].currentText()
+        method = int(method)
+        
+        if method == 0:
+            
+            self.paramDic["Tcv"][1].setText("0.0")
+            self.paramDic["Tcv"][1].setEnabled(False)
+
+            self.paramDic["Vcv"][1].setText("0.0")
+            self.paramDic["Vcv"][1].setEnabled(False)
+
+            self.paramDic["Tlag"][1].setText("0.0")
+            self.paramDic["Tlag"][1].setEnabled(False)
+
+            self.paramDic["NCh"][1].clear()
+            self.paramDic["NCh"][1].setEnabled(True)
+
+
+
+        else:
+
+            self.paramDic["NCh"][1].setText("0")
+            self.paramDic["NCh"][1].setEnabled(False)
+
+            self.paramDic["Tcv"][1].clear()
+            self.paramDic["Tcv"][1].setEnabled(True)
+
+            self.paramDic["Vcv"][1].clear()
+            self.paramDic["Vcv"][1].setEnabled(True)
+
+            self.paramDic["Tlag"][1].clear()
+            self.paramDic["Tlag"][1].setEnabled(True)
+
+
+
+
+
+
+
+
+        """
+        if method = 0
+        Tcv = 0.0
+        Vcv = 0.0
+        Tlag = 0.0
+
+        if method = 1
+        NCh = 0
+        """
+        
 
     def loadFile(self):
 
