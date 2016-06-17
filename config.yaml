@@ -317,9 +317,9 @@ parameters:
     #File format is as follows
     #xposition yposition zposition chargeid TimeSpentOnSite GlobalTime
     - NumChargesTrack:
-        -
+        - foobar
     - PathFile:
-        -
+        - foobar
 
     #Log File .log
     #File contains information of interest of the simulation

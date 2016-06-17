@@ -1,5 +1,11 @@
 #!/usr/local/bin/python
+""" 
 
+OPV GUI
+Written by Soo Park 2016 for Shaheen Group @ CU Boulder
+Contact: soo.park@colorado.edu
+
+"""
 
 import sys
 import yaml
@@ -34,21 +40,24 @@ class MainWindow(QtGui.QWidget):
         
         for key1, val1 in config.iteritems():
             for param in val1:
-                #print param
+                print param
                 for key2, val2 in param.iteritems():
                     
                     if len(val2) == 1:
                         
                         self.paramName = QtGui.QLabel(key2)
+                        self.paramName.setToolTip(val2[0])
                         self.secondaryLayout.addWidget(self.paramName, index, 0)
 
                         self.lineEdit = QtGui.QLineEdit()
+                        self.lineEdit.setToolTip(val2[0])
                         self.secondaryLayout.addWidget(self.lineEdit, index, 1)
                     
                     else:
                         
                         # Parameter Names
                         self.paramName = QtGui.QLabel(key2)
+                        self.paramName.setToolTip(val2[0])
                         self.secondaryLayout.addWidget(self.paramName, index, 0)
 
                         # Combo Box for options
@@ -56,6 +65,7 @@ class MainWindow(QtGui.QWidget):
                         for order, items in enumerate(val2):
                             if order > 0:
                                 self.comboBox.addItems(str(items))
+                                self.comboBox.setToolTip(val2[0])
                                 self.secondaryLayout.addWidget(self.comboBox, index, 1)
                     
                     index = index + 1
