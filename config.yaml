@@ -93,7 +93,7 @@ parameters:
         - Define the electron affinity of medium [eV]
 
     # Define the ionization energy of medium [eV]
-    - ionization Energy:
+    - ionizationEnergy:
         - Define the ionization energy of medium [eV]
 
     # Define the attempt to hop rate from the electrode [1/s]

@@ -9,7 +9,7 @@ Contact: soo.park@colorado.edu
 
 import sys
 import yaml
-import re
+import os
 from PyQt4 import QtGui, QtCore
 
 class MainWindow(QtGui.QWidget):
@@ -136,7 +136,23 @@ class MainWindow(QtGui.QWidget):
     def loadFile(self):
 
         loadFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load file', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI')
-    
+
+        with open(loadFileName) as loadFile:
+            loadData = loadFile.readlines()
+        
+        for i, j in enumerate(loadData):
+            loadData[i] = loadData[i].split(' ')
+        for index, param in enumerate(self.paramDic):
+            for index1, param1 in enumerate(loadData):
+                if (self.paramDic[index][0].text() == loadData[index1][0]):
+                    try:
+
+                        self.paramDic[index][1].setText(loadData[index1][1])
+
+                    except AttributeError:
+                        data = int(loadData[index1][1])
+                        self.paramDic[index][1].setCurrentIndex(data)
+
     def saveFile(self):
 
         period = 0
@@ -160,40 +176,40 @@ class MainWindow(QtGui.QWidget):
             # Electron checking
             # X
             if (self.paramDic[index][0].text() == "PeriodicX" and self.paramDic[index][1].currentText() == "1"):
-                print "1", self.paramDic[index][1].currentText()
+                #print "1", self.paramDic[index][1].currentText()
                 period = 1
             if (self.paramDic[index][0].text() == "XElecOn" and self.paramDic[index][1].currentText() == "1"):
-                print "2", self.paramDic[index][1].currentText()
+                #print "2", self.paramDic[index][1].currentText()
                 elec = 1
                 xon = 1
             if (self.paramDic[index][0].text() == "EndX" and self.paramDic[index][1].currentText() == "0"):
-                print "3", self.paramDic[index][1].currentText()
+                #print "3", self.paramDic[index][1].currentText()
                 end = 1
                 xyz = "X"
 
             # Y
             if (self.paramDic[index][0].text() == "PeriodicY" and self.paramDic[index][1].currentText() == "1"):
-                print "1", self.paramDic[index][1].currentText()
+                #print "1", self.paramDic[index][1].currentText()
                 period = 1
             if (self.paramDic[index][0].text() == "YElecOn" and self.paramDic[index][1].currentText() == "1"):
-                print "2", self.paramDic[index][1].currentText()
+                #print "2", self.paramDic[index][1].currentText()
                 elec = 1
                 yon = 1
             if (self.paramDic[index][0].text() == "EndY" and self.paramDic[index][1].currentText() == "0"):
-                print "3", self.paramDic[index][1].currentText()
+                #print "3", self.paramDic[index][1].currentText()
                 end = 1
                 xyz = "Y"
 
             # Z
             if (self.paramDic[index][0].text() == "PeriodicZ" and self.paramDic[index][1].currentText() == "1"):
-                print "1", self.paramDic[index][1].currentText()
+                #print "1", self.paramDic[index][1].currentText()
                 period = 1
             if (self.paramDic[index][0].text() == "ZElecOn" and self.paramDic[index][1].currentText() == "1"):
-                print "2", self.paramDic[index][1].currentText()
+                #print "2", self.paramDic[index][1].currentText()
                 elec = 1
                 zon = 1
             if (self.paramDic[index][0].text() == "EndZ" and self.paramDic[index][1].currentText() == "0"):
-                print "3", self.paramDic[index][1].currentText()
+                #print "3", self.paramDic[index][1].currentText()
                 end = 1
                 xyz = "Z"
 
@@ -216,28 +232,39 @@ class MainWindow(QtGui.QWidget):
 
         with open(saveFileName, 'a') as saveFile:
             for index, value in enumerate(self.paramDic):
-                #print self.paramDic[index][0].text(), self.paramDic[index][1].text()
                 try:
 
                     data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text() + "\n"
+                    print data
                     saveFile.write(data)
                    
                 except AttributeError:
                         
                     data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].currentText() + "\n"
+                    print data
                     saveFile.write(data)
                     
 
     def parseConfig(self):
+
+        #configFile = self.resource_path("config.yaml")
 
         with open("config.yaml", 'r') as config:
             configFile = yaml.load(config)
             prettyConfigFile = yaml.dump(configFile, default_flow_style = False)
             #print prettyConfigFile
             return configFile
-            
-    def center(self):
+
+    def resource_path(self, relative_path):
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
         
+
+    def center(self):
+
         qr = self.frameGeometry()
         cp = QtGui.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
