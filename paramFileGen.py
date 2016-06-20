@@ -142,11 +142,13 @@ class MainWindow(QtGui.QWidget):
         period = 0
         elec = 0
         end = 0
+        xon = 0
+        yon = 0
+        zon = 0
         xyz = 0
-        
-        """
+
         for index, value in enumerate(self.paramDic):
-           
+            
             # X
             if (self.paramDic[index][0].text() == "PeriodicX" and self.paramDic[index][1].currentText() == "1"):
                 print "1", self.paramDic[index][1].currentText()
@@ -154,6 +156,7 @@ class MainWindow(QtGui.QWidget):
             if (self.paramDic[index][0].text() == "XElecOn" and self.paramDic[index][1].currentText() == "1"):
                 print "2", self.paramDic[index][1].currentText()
                 elec = 1
+                xon = 1
             if (self.paramDic[index][0].text() == "EndX" and self.paramDic[index][1].currentText() == "0"):
                 print "3", self.paramDic[index][1].currentText()
                 end = 1
@@ -166,6 +169,7 @@ class MainWindow(QtGui.QWidget):
             if (self.paramDic[index][0].text() == "YElecOn" and self.paramDic[index][1].currentText() == "1"):
                 print "2", self.paramDic[index][1].currentText()
                 elec = 1
+                yon = 1
             if (self.paramDic[index][0].text() == "EndY" and self.paramDic[index][1].currentText() == "0"):
                 print "3", self.paramDic[index][1].currentText()
                 end = 1
@@ -178,15 +182,20 @@ class MainWindow(QtGui.QWidget):
             if (self.paramDic[index][0].text() == "ZElecOn" and self.paramDic[index][1].currentText() == "1"):
                 print "2", self.paramDic[index][1].currentText()
                 elec = 1
+                zon = 1
             if (self.paramDic[index][0].text() == "EndZ" and self.paramDic[index][1].currentText() == "0"):
                 print "3", self.paramDic[index][1].currentText()
                 end = 1
                 xyz = "Z"
 
         if (period == 1 and elec == 1 and end == 1):
-            QtGui.QMessageBox.about(self, "My message box", "Periodic%s = 1, %sElecOn = 1, therefore End%s cannot be 0. Please go back and edit End%s." % (xyz, xyz, xyz, xyz))
+            QtGui.QMessageBox.about(self, "Warning", "Periodic%s = 1, %sElecOn = 1, therefore End%s cannot be 0. Please go back and edit End%s." % (xyz, xyz, xyz, xyz))
             return 
-        """
+
+
+        if (period == 0 and elec == 0 and end == 0):
+            QtGui.QMessageBox.about(self, "Warning", "At least one set of electrodes (*ElecOn) must be on")
+            return
 
 
         saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt')
@@ -197,13 +206,13 @@ class MainWindow(QtGui.QWidget):
                 #print self.paramDic[index][0].text(), self.paramDic[index][1].text()
                 try:
 
-                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text() + "\n"
+                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text()
                     print data
                     saveFile.write(data)
                    
                 except AttributeError:
                         
-                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].currentText() + "\n"
+                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].currentText() 
                     print data
                     saveFile.write(data)
                     
