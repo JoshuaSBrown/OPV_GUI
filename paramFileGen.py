@@ -146,9 +146,18 @@ class MainWindow(QtGui.QWidget):
         yon = 0
         zon = 0
         xyz = 0
+        dataisthere = False
 
         for index, value in enumerate(self.paramDic):
-            
+       
+            try:
+                if (self.paramDic[index][1].text() == ""):
+                    dataisnotthere = True
+            except AttributeError:
+                if (self.paramDic[index][1].currentText() == ""):
+                    dataisnotthere = True
+
+            # Electron checking
             # X
             if (self.paramDic[index][0].text() == "PeriodicX" and self.paramDic[index][1].currentText() == "1"):
                 print "1", self.paramDic[index][1].currentText()
@@ -188,15 +197,19 @@ class MainWindow(QtGui.QWidget):
                 end = 1
                 xyz = "Z"
 
-        if (period == 1 and elec == 1 and end == 1):
+
+        if dataisnotthere:
+            QtGui.QMessageBox.about(self, "Warning", "Some parameters have not been entered. Please go back and check that all parameters have been filled in.")
+            return
+
+        elif (period == 1 and elec == 1 and end == 1):
             QtGui.QMessageBox.about(self, "Warning", "Periodic%s = 1, %sElecOn = 1, therefore End%s cannot be 0. Please go back and edit End%s." % (xyz, xyz, xyz, xyz))
             return 
 
 
-        if (period == 0 and elec == 0 and end == 0):
+        elif (period == 0 and elec == 0 and end == 0):
             QtGui.QMessageBox.about(self, "Warning", "At least one set of electrodes (*ElecOn) must be on")
             return
-
 
         saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt')
         #saveFile = open(saveFileName, 'w')
