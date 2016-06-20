@@ -146,7 +146,7 @@ class MainWindow(QtGui.QWidget):
         yon = 0
         zon = 0
         xyz = 0
-        dataisthere = False
+        dataisnotthere = False
 
         for index, value in enumerate(self.paramDic):
        
@@ -211,7 +211,7 @@ class MainWindow(QtGui.QWidget):
             QtGui.QMessageBox.about(self, "Warning", "At least one set of electrodes (*ElecOn) must be on")
             return
 
-        saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt')
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI', selectedFilter='*.txt') + ".txt"
         #saveFile = open(saveFileName, 'w')
 
         with open(saveFileName, 'a') as saveFile:
@@ -219,14 +219,12 @@ class MainWindow(QtGui.QWidget):
                 #print self.paramDic[index][0].text(), self.paramDic[index][1].text()
                 try:
 
-                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text()
-                    print data
+                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].text() + "\n"
                     saveFile.write(data)
                    
                 except AttributeError:
                         
-                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].currentText() 
-                    print data
+                    data = self.paramDic[index][0].text() + " " + self.paramDic[index][1].currentText() + "\n"
                     saveFile.write(data)
                     
 
