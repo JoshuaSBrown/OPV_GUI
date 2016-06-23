@@ -31,17 +31,21 @@ class MainWindow(QtGui.QWidget):
         self.plotWidget.addItem(xgrid)
         self.plotWidget.addItem(ygrid)
         self.plotWidget.addItem(zgrid)
-        
-        xgrid.rotate(90, 0, 1, 0)
-        xgrid.translate(-10, 0, 0)
-        ygrid.rotate(90, 1, 0, 0)
-        #ygrid.translate(0, -10, 0)
-        
-        #zgrid.translate(0, 0, -10)
 
-        xgrid.scale(5, 5, 5)
-        ygrid.scale(5, 5, 5)
-        zgrid.scale(5, 5, 5)
+        xgrid.setSize(30, 30, 30)
+        ygrid.setSize(30, 30, 30)
+        zgrid.setSize(30, 30, 30)
+
+        xgrid.translate(-15, 15, 0)
+        ygrid.translate(15, 15, 0)
+        zgrid.translate(15, 15, 0)
+
+        xgrid.rotate(90, 0, 1, 0)
+        ygrid.rotate(90, 1, 0, 0)
+
+        xgrid.scale(1, 1, 1)
+        ygrid.scale(1, 1, 1)
+        zgrid.scale(1, 1, 1)
 
         loadButton = QtGui.QPushButton("Load XYZ File")
         loadButton.clicked.connect(self.loadXYZFile)
