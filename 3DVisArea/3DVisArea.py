@@ -60,18 +60,49 @@ class MainWindow(QtGui.QWidget):
         self.shapeCB.setCurrentIndex(0)
         self.shapeCB.currentIndexChanged.connect(lambda: self.changeShape())
 
-
         transLabel = QtGui.QLabel("Transparency")
 
         self.transSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.transSlider.valueChanged[int].connect(self.changeTrans)
 
+        visibleAreas = QtGui.QGroupBox("Visible Areas")
+        visibleAreas.setToolTip("Cannot excede the maximum number indicated next to the labels")
+
+        visibleAreasLayout = QtGui.QVBoxLayout()
+
+        self.viewAll = QtGui.QRadioButton("View All Areas")
+
+        self.xPlaneLabel = QtGui.QLabel("X-Plane")
+        self.xPlaneLabel.setToolTip("ex) 1,4-7,15,17")
+        self.yPlaneLabel = QtGui.QLabel("Y-Plane")
+        self.yPlaneLabel.setToolTip("ex) 1,4-7,15,17")
+        self.zPlaneLabel = QtGui.QLabel("Z-Plane")
+        self.zPlaneLabel.setToolTip("ex) 1,4-7,15,17")
+        
+        self.xPlaneLE = QtGui.QLineEdit()
+        self.yPlaneLE = QtGui.QLineEdit()
+        self.zPlaneLE = QtGui.QLineEdit()
+
+        submitButton = QtGui.QPushButton("Submit")
+
+        visibleAreasLayout.addWidget(self.viewAll)
+        visibleAreasLayout.addWidget(self.xPlaneLabel)
+        visibleAreasLayout.addWidget(self.xPlaneLE)
+        visibleAreasLayout.addWidget(self.yPlaneLabel)
+        visibleAreasLayout.addWidget(self.yPlaneLE)
+        visibleAreasLayout.addWidget(self.zPlaneLabel)
+        visibleAreasLayout.addWidget(self.zPlaneLE)
+        visibleAreasLayout.addWidget(submitButton)
+        visibleAreas.setLayout(visibleAreasLayout)
+
+        # adding widgets to respective layouts
         self.rightLayout.setAlignment(QtCore.Qt.AlignTop)
         self.rightLayout.addWidget(loadButton)
         self.rightLayout.addWidget(shapeLabel)
         self.rightLayout.addWidget(self.shapeCB)
         self.rightLayout.addWidget(transLabel)
         self.rightLayout.addWidget(self.transSlider)
+        self.rightLayout.addWidget(visibleAreas)
 
         self.plotLayout.addWidget(self.plotWidget)
         
