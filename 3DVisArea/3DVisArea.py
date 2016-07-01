@@ -53,16 +53,25 @@ class MainWindow(QtGui.QWidget):
 
         loadButton = QtGui.QPushButton("Load XYZ File")
         loadButton.clicked.connect(self.loadXYZFile)
-       
+        
+        shapeLabel = QtGui.QLabel("Shape")
+        self.shapeCB = QtGui.QComboBox()
+        self.shapeCB.addItems(["Circle", "Square"])
+        self.shapeCB.setCurrentIndex(0)
+        self.shapeCB.currentIndexChanged.connect(lambda: self.changeShape())
+
+
         transLabel = QtGui.QLabel("Transparency")
 
-        transSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        transSlider.valueChanged[int].connect(self.changeTrans)
+        self.transSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.transSlider.valueChanged[int].connect(self.changeTrans)
 
         self.rightLayout.setAlignment(QtCore.Qt.AlignTop)
         self.rightLayout.addWidget(loadButton)
+        self.rightLayout.addWidget(shapeLabel)
+        self.rightLayout.addWidget(self.shapeCB)
         self.rightLayout.addWidget(transLabel)
-        self.rightLayout.addWidget(transSlider)
+        self.rightLayout.addWidget(self.transSlider)
 
         self.plotLayout.addWidget(self.plotWidget)
         
@@ -84,13 +93,15 @@ class MainWindow(QtGui.QWidget):
         
         dataLen = len(xyzData)
 
-        pos = empty((dataLen, 3))
-        size = empty((dataLen))
-        color = empty((dataLen, 4))
+        self.pos = empty((dataLen, 3))
+        self.size = empty((dataLen))
+        self.color = empty((dataLen, 4))
 
         xMax = 0
         yMax = 0
         zMax = 0
+
+        self.coloristhere = False
         
         #All the data points
         energy = []
@@ -98,19 +109,20 @@ class MainWindow(QtGui.QWidget):
             
             xyzData[i] = xyzData[i].split('\t')
             del xyzData[i][0] # delete "C"
-            pos[i] = tuple(xyzData[i][0:3])
-            size[i] = .5
+            self.pos[i] = tuple(xyzData[i][0:3])
+            self.size[i] = .5
             energy.append(xyzData[i][3])
             #color[i] = (1, 0, 0, 0.5)
    	
-        normEnergy = self.normalizeEnergy(energy)
+        self.normEnergy = self.normalizeEnergy(energy)
    		
-        for i, j in enumerate(normEnergy):
-            color[i] = hot(normEnergy[i])
+        for i, j in enumerate(self.normEnergy):
+            self.color[i] = hot(self.normEnergy[i])
+            self.coloristhere = True
 
 		# insert surfaceArea code here if needed
 
-        self.plot = gl.GLScatterPlotItem(pos=pos, size=size, color=color, pxMode=False)
+        self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
         self.plotWidget.addItem(self.plot)
         
         
@@ -125,19 +137,47 @@ class MainWindow(QtGui.QWidget):
             
             norm = (energy[i] - minEnergy) / (maxEnergy - minEnergy)
             normEnergy.append(norm)
-            print norm
+            #print norm
         
         return normEnergy
     
-    def changeTrans(self, value):
-        
-        if value == 0:
+    def changeShape(self):
+    
+        if self.shapeCB.currentText() == "Square":
+            self.transSlider.blockSignals(True)
             self.plot.setGLOptions('opaque')
+
+        else:
+            self.transSlider.blockSignals(False)
+    
+    def changeTrans(self, value):
+      
+        
+        alpha = float(value)/float(100)
+        print alpha
+        if self.coloristhere:
+            
+            for i in range(0, len(self.normEnergy)):
+                self.color[i] = hot(self.normEnergy[i], alpha)
+
+        if value >= 90:
+            
+            self.plot.setGLOptions('translucent')
+       
+        else:
+
+            self.plot.setGLOptions('additive')
+
+
+
+        """
+        if value == 0:
+            self.plot.setGLOptions()
         elif value > 0:
             self.plot.setGLOptions('translucent')
         else: 
-            self.plot.setGLOptions('additive')
-
+            self.plot.setGLOptions('opaque')
+        """
 
            
 
