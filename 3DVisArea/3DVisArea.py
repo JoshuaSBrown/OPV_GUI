@@ -71,6 +71,7 @@ class MainWindow(QtGui.QWidget):
         visibleAreasLayout = QtGui.QVBoxLayout()
 
         self.viewAll = QtGui.QRadioButton("View All Areas")
+        self.viewAll.toggled.connect(self.viewAllAreas)
 
         self.xPlaneLabel = QtGui.QLabel("X-Plane")
         self.xPlaneLabel.setToolTip("ex) 1,4-7,15,17")
@@ -84,6 +85,7 @@ class MainWindow(QtGui.QWidget):
         self.zPlaneLE = QtGui.QLineEdit()
 
         submitButton = QtGui.QPushButton("Submit")
+        submitButton.clicked.connect(self.changeViewAreas)
 
         visibleAreasLayout.addWidget(self.viewAll)
         visibleAreasLayout.addWidget(self.xPlaneLabel)
@@ -191,7 +193,7 @@ class MainWindow(QtGui.QWidget):
             for i in range(0, len(self.normEnergy)):
                 self.color[i] = hot(self.normEnergy[i], alpha)
 
-        if value >= 90:
+        if value >= 98:
             
             self.plot.setGLOptions('translucent')
        
@@ -200,17 +202,81 @@ class MainWindow(QtGui.QWidget):
             self.plot.setGLOptions('additive')
 
 
+    def viewAllAreas(self):
 
-        """
-        if value == 0:
-            self.plot.setGLOptions()
-        elif value > 0:
-            self.plot.setGLOptions('translucent')
-        else: 
-            self.plot.setGLOptions('opaque')
-        """
+            if self.viewAll.isChecked():
 
-           
+                self.xPlaneLE.setEnabled(False)
+                self.yPlaneLE.setEnabled(False)
+                self.zPlaneLE.setEnabled(False)
+
+            #for i in range(0, len(normEnergy))
+            #self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
+               
+
+            else:
+
+                self.xPlaneLE.setEnabled(True)
+                self.yPlaneLE.setEnabled(True)
+                self.zPlaneLE.setEnabled(True)
+    
+    def changeViewAreas(self): 
+    
+        xPlaneArea = self.parseAreaInput(self.xPlaneLE)
+        yPlaneArea = self.parseAreaInput(self.yPlaneLE)
+        zPlaneArea = self.parseAreaInput(self.zPlaneLE)
+
+        
+
+    def parseAreaInput(self, planeArea):
+        
+        planeArea = str(self.xPlaneLE.text())
+        planeArea = planeArea.split(",")
+        
+        temp1 = []
+        temp2 = []
+
+        for i in range(0,len(planeArea)):
+            if "-" in planeArea[i]:
+                
+                temp = planeArea[i].split("-")
+                foo = int(temp[0]) 
+                bar = int(temp[1])
+                temp1 = range(foo, bar+1)
+                planeArea.extend(temp1)
+                temp2.append(planeArea[i])
+            
+        
+        for i in range(0,len(temp2)):
+            planeArea.remove(temp2[i])  
+      
+        planeArea = map(int, planeArea)
+        planeArea.sort()
+        print planeArea
+        return planeArea
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def main():
 
