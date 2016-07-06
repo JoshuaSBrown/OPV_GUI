@@ -111,6 +111,13 @@ class MainWindow(QtGui.QWidget):
         self.mainLayout.addLayout(self.plotLayout)
         self.mainLayout.addLayout(self.rightLayout)
 
+        self.plotAlreadyThere = False
+        self.previousDataSize = 0
+
+        #self.pos = empty((previousDataSize, 3))
+        #self.size = empty((previousDataSize))
+        #self.color = empty((previousDataSize, 4))
+
         self.setLayout(self.mainLayout)
         self.resize(800, 600)
         self.setWindowTitle("3D Visualtization Area")
@@ -119,11 +126,20 @@ class MainWindow(QtGui.QWidget):
     def loadXYZFile(self):
         
         xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File', '.')
-        with open(xyzFileName) as xyzFile:
-            xyzData = xyzFile.readlines()
-        
-        # I manually deleted the first two lines from the xyz file. 
-        
+        try:
+            with open(xyzFileName) as xyzFile:
+                xyzData = xyzFile.readlines()
+        except IOError:
+            return
+
+        if not ".xyz" in xyzFileName:
+            QtGui.QMessageBox.about(self, "Error", "Not a xyz File")
+            return
+
+        if self.plotAlreadyThere:
+            for i in range(0, self.previousDataSize):
+                self.size[i] = 0
+
         dataLen = len(xyzData)
 
         self.pos = empty((dataLen, 3))
@@ -155,7 +171,8 @@ class MainWindow(QtGui.QWidget):
 
         self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
         self.plotWidget.addItem(self.plot)
-        
+        self.plotAlreadyThere = True
+        self.previousDataSize = dataLen
         
     def normalizeEnergy(self, energy):
         
@@ -186,18 +203,21 @@ class MainWindow(QtGui.QWidget):
         
         alpha = float(value)/float(100)
         print alpha
-        if self.coloristhere:
-            
-            for i in range(0, len(self.normEnergy)):
-                self.color[i] = hot(self.normEnergy[i], alpha)
+        try:
+            if self.coloristhere:
+                
+                for i in range(0, len(self.normEnergy)):
+                    self.color[i] = hot(self.normEnergy[i], alpha)
 
-        if value >= 98:
+            if value >= 98:
             
-            self.plot.setGLOptions('translucent')
+                self.plot.setGLOptions('translucent')
        
-        else:
+            else:
 
-            self.plot.setGLOptions('additive')
+                self.plot.setGLOptions('additive')
+        except AttributeError:
+            QtGui.QMessageBox.about(self, "Error", "Must load a xyz file first.")
 
 
     def viewAllAreas(self):
@@ -215,7 +235,10 @@ class MainWindow(QtGui.QWidget):
                 self.zPlaneLE.setEnabled(True)
     
     def changeViewAreas(self): 
-    
+   
+        if not self.dataAlreadyThere:
+            QtGui.QMessageBox.about(self, "Error", "Must load a xyz file first.")
+
         xPlaneArea = self.parseAreaInput(self.xPlaneLE)
         yPlaneArea = self.parseAreaInput(self.yPlaneLE)
         zPlaneArea = self.parseAreaInput(self.zPlaneLE)
