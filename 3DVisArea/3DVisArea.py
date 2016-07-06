@@ -87,6 +87,15 @@ class MainWindow(QtGui.QWidget):
         submitButton = QtGui.QPushButton("Submit")
         submitButton.clicked.connect(self.changeViewAreas)
 
+        spacer = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        
+        doge = QtGui.QLabel()
+        dogeImg = QtGui.QPixmap("/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/dogeicon.png")
+        dogeSmall = dogeImg.scaledToWidth(100)
+        doge.setPixmap(dogeSmall)
+        doge.setAlignment(QtCore.Qt.AlignCenter)
+
+
         visibleAreasLayout.addWidget(self.viewAll)
         visibleAreasLayout.addWidget(self.xPlaneLabel)
         visibleAreasLayout.addWidget(self.xPlaneLE)
@@ -105,6 +114,8 @@ class MainWindow(QtGui.QWidget):
         self.rightLayout.addWidget(transLabel)
         self.rightLayout.addWidget(self.transSlider)
         self.rightLayout.addWidget(visibleAreas)
+        self.rightLayout.addItem(spacer)
+        self.rightLayout.addWidget(doge)
 
         self.plotLayout.addWidget(self.plotWidget)
         
@@ -120,7 +131,7 @@ class MainWindow(QtGui.QWidget):
 
         self.setLayout(self.mainLayout)
         self.resize(800, 600)
-        self.setWindowTitle("3D Visualtization Area")
+        self.setWindowTitle("3D Visualization Area")
         self.show()
 
     def loadXYZFile(self):
@@ -168,6 +179,14 @@ class MainWindow(QtGui.QWidget):
             self.coloristhere = True
 
 		# insert surfaceArea code here if needed
+
+        self.xMaxPos = int(self.maxPos[0])
+        self.yMaxPos = int(self.maxPos[1])
+        self.zMaxPos = int(self.maxPos[2])
+
+        self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
+        self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
+        self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
 
         self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
         self.plotWidget.addItem(self.plot)
@@ -227,6 +246,9 @@ class MainWindow(QtGui.QWidget):
                 self.xPlaneLE.setEnabled(False)
                 self.yPlaneLE.setEnabled(False)
                 self.zPlaneLE.setEnabled(False)
+                
+                for i in range(0, len(self.pos)):
+                    self.size[i] = .5
 
             else:
 
@@ -236,24 +258,13 @@ class MainWindow(QtGui.QWidget):
     
     def changeViewAreas(self): 
    
-        if not self.dataAlreadyThere:
+        if not self.plotAlreadyThere:
             QtGui.QMessageBox.about(self, "Error", "Must load a xyz file first.")
 
-        xPlaneArea = self.parseAreaInput(self.xPlaneLE)
-        yPlaneArea = self.parseAreaInput(self.yPlaneLE)
-        zPlaneArea = self.parseAreaInput(self.zPlaneLE)
-
-        """ plotting all 
-
-        if not xPlaneArea:
-            xPlaneArea = range(0, self.maxPos[0])
-        if not yPlaneArea:
-            yPlaneArea = range(0, self.maxPos[1])
-        if not zPlaneArea:
-            zPlaneArea = range(0, self.maxPos[2])
+        xPlaneArea = self.parseAreaInput(self.xPlaneLE, self.xMaxPos)
+        yPlaneArea = self.parseAreaInput(self.yPlaneLE, self.xMaxPos)
+        zPlaneArea = self.parseAreaInput(self.zPlaneLE, self.xMaxPos)
         
-        """
-
         visualizeThese = []
         for i in range(0, len(self.pos)):
             for x in range(0, len(xPlaneArea)):
@@ -265,10 +276,11 @@ class MainWindow(QtGui.QWidget):
                             
         for j in range(0, len(visualizeThese)):
             self.size[visualizeThese[j]] = .5
-            print j, self.pos[visualizeThese[j]]
+            #print j, self.pos[visualizeThese[j]]
 
-    def parseAreaInput(self, planeArea):
+    def parseAreaInput(self, planeArea, maxPos):
         
+        planeAreaLE = planeArea
         planeArea = str(planeArea.text())
         planeArea = planeArea.split(",")
         
@@ -288,34 +300,15 @@ class MainWindow(QtGui.QWidget):
         
         for i in range(0,len(temp2)):
             planeArea.remove(temp2[i])  
-      
-        planeArea = map(int, planeArea)
-        planeArea.sort()
-        print planeArea
+    
+        if not planeArea[0]:
+            planeArea = range(0, maxPos)
+            planeAreaLE.setText("0-%i" % maxPos) 
+        else:
+            planeArea = map(int, planeArea)
+            planeArea.sort()
+
         return planeArea
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def main():
 
