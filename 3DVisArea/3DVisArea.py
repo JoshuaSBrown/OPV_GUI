@@ -130,10 +130,6 @@ class MainWindow(QtGui.QWidget):
         self.size = empty((dataLen))
         self.color = empty((dataLen, 4))
 
-        xMax = 0
-        yMax = 0
-        zMax = 0
-
         self.coloristhere = False
         
         #All the data points
@@ -146,7 +142,9 @@ class MainWindow(QtGui.QWidget):
             self.size[i] = .5
             energy.append(xyzData[i][3])
             #color[i] = (1, 0, 0, 0.5)
-   	
+   
+        self.maxPos = self.pos[dataLen - 1]
+
         self.normEnergy = self.normalizeEnergy(energy)
    		
         for i, j in enumerate(self.normEnergy):
@@ -210,10 +208,6 @@ class MainWindow(QtGui.QWidget):
                 self.yPlaneLE.setEnabled(False)
                 self.zPlaneLE.setEnabled(False)
 
-            #for i in range(0, len(normEnergy))
-            #self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
-               
-
             else:
 
                 self.xPlaneLE.setEnabled(True)
@@ -226,11 +220,33 @@ class MainWindow(QtGui.QWidget):
         yPlaneArea = self.parseAreaInput(self.yPlaneLE)
         zPlaneArea = self.parseAreaInput(self.zPlaneLE)
 
+        """ plotting all 
+
+        if not xPlaneArea:
+            xPlaneArea = range(0, self.maxPos[0])
+        if not yPlaneArea:
+            yPlaneArea = range(0, self.maxPos[1])
+        if not zPlaneArea:
+            zPlaneArea = range(0, self.maxPos[2])
         
+        """
+
+        visualizeThese = []
+        for i in range(0, len(self.pos)):
+            for x in range(0, len(xPlaneArea)):
+                for y in range(0, len(yPlaneArea)):
+                    for z in range(0, len(zPlaneArea)):
+                        self.size[i] = 0
+                        if ((self.pos[i][0] == xPlaneArea[x]) and (self.pos[i][1] == yPlaneArea[y]) and (self.pos[i][2] == zPlaneArea[z])): 
+                            visualizeThese.append(i)
+                            
+        for j in range(0, len(visualizeThese)):
+            self.size[visualizeThese[j]] = .5
+            print j, self.pos[visualizeThese[j]]
 
     def parseAreaInput(self, planeArea):
         
-        planeArea = str(self.xPlaneLE.text())
+        planeArea = str(planeArea.text())
         planeArea = planeArea.split(",")
         
         temp1 = []
