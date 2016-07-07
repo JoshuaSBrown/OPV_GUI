@@ -20,10 +20,13 @@ class MainWindow(QtGui.QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         
-        self.mainLayout = QtGui.QHBoxLayout()
-        self.rightLayout = QtGui.QVBoxLayout()
-        self.plotLayout = QtGui.QVBoxLayout()
-    
+        self.mainLayout = QtGui.QHBoxLayout() # main layout. plotLayout - xyzLayout - pathLayout
+        self.plotLayout = QtGui.QVBoxLayout() # plot layout. 
+        self.xyzWidgetLayout = QtGui.QVBoxLayout() # xyzWidgetsLayout that is used for the xyzWidgets QGroupBox
+        self.xyzLayout = QtGui.QVBoxLayout() # xyzLayout that contains xyzWidgets.
+        self.pathWigetsLayout = QtGui.QVBoxLayout()
+        self.pathLayout = QtGui.QVBoxLayout()
+
         self.plotWidget = gl.GLViewWidget()
         self.plotWidget.setFixedSize(600, 600)
         self.plotWidget.opts['distance'] = 100
@@ -50,6 +53,8 @@ class MainWindow(QtGui.QWidget):
         xgrid.scale(1, 1, 1)
         ygrid.scale(1, 1, 1)
         zgrid.scale(1, 1, 1)
+
+        self.xyzWidgets = QtGui.QGroupBox("XYZ Visualization")
 
         loadButton = QtGui.QPushButton("Load XYZ File")
         loadButton.clicked.connect(self.loadXYZFile)
@@ -95,7 +100,6 @@ class MainWindow(QtGui.QWidget):
         doge.setPixmap(dogeSmall)
         doge.setAlignment(QtCore.Qt.AlignCenter)
 
-
         visibleAreasLayout.addWidget(self.viewAll)
         visibleAreasLayout.addWidget(self.xPlaneLabel)
         visibleAreasLayout.addWidget(self.xPlaneLE)
@@ -107,27 +111,37 @@ class MainWindow(QtGui.QWidget):
         visibleAreas.setLayout(visibleAreasLayout)
 
         # adding widgets to respective layouts
-        self.rightLayout.setAlignment(QtCore.Qt.AlignTop)
-        self.rightLayout.addWidget(loadButton)
-        self.rightLayout.addWidget(shapeLabel)
-        self.rightLayout.addWidget(self.shapeCB)
-        self.rightLayout.addWidget(transLabel)
-        self.rightLayout.addWidget(self.transSlider)
-        self.rightLayout.addWidget(visibleAreas)
-        self.rightLayout.addItem(spacer)
-        self.rightLayout.addWidget(doge)
+        self.xyzWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
+        self.xyzWidgetLayout.addWidget(loadButton)
+        self.xyzWidgetLayout.addWidget(shapeLabel)
+        self.xyzWidgetLayout.addWidget(self.shapeCB)
+        self.xyzWidgetLayout.addWidget(transLabel)
+        self.xyzWidgetLayout.addWidget(self.transSlider)
+        self.xyzWidgetLayout.addWidget(visibleAreas)
+        self.xyzWidgetLayout.addItem(spacer)
+        self.xyzWidgetLayout.addWidget(doge)
+        self.xyzWidgets.setLayout(self.xyzWidgetLayout)
+        
+        self.pathWidgets = QtGui.QGroupBox("Path Visualization")
+        self.pathWidgetLayout = QtGui.QVBoxLayout()
 
+        self.loadPathButton = QtGui.QPushButton("Load Path File")
+        self.loadPathButton.clicked.connect(self.loadPathFile)
+
+        self.pathWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
+        self.pathWidgetLayout.addWidget(self.loadPathButton)
+        self.pathWidgets.setLayout(self.pathWidgetLayout)
+    
+        self.xyzLayout.addWidget(self.xyzWidgets)
         self.plotLayout.addWidget(self.plotWidget)
+        self.pathLayout.addWidget(self.pathWidgets)
         
         self.mainLayout.addLayout(self.plotLayout)
-        self.mainLayout.addLayout(self.rightLayout)
+        self.mainLayout.addLayout(self.xyzLayout)
+        self.mainLayout.addLayout(self.pathLayout)
 
         self.plotAlreadyThere = False
         self.previousDataSize = 0
-
-        #self.pos = empty((previousDataSize, 3))
-        #self.size = empty((previousDataSize))
-        #self.color = empty((previousDataSize, 4))
 
         self.setLayout(self.mainLayout)
         self.resize(800, 600)
@@ -170,7 +184,7 @@ class MainWindow(QtGui.QWidget):
             energy.append(xyzData[i][3])
             #color[i] = (1, 0, 0, 0.5)
    
-        self.maxPos = self.pos[dataLen - 1]
+        maxPos = self.pos[dataLen - 1]
 
         self.normEnergy = self.normalizeEnergy(energy)
    		
@@ -180,9 +194,9 @@ class MainWindow(QtGui.QWidget):
 
 		# insert surfaceArea code here if needed
 
-        self.xMaxPos = int(self.maxPos[0])
-        self.yMaxPos = int(self.maxPos[1])
-        self.zMaxPos = int(self.maxPos[2])
+        xMaxPos = int(maxPos[0])
+        yMaxPos = int(maxPos[1])
+        zMaxPos = int(maxPos[2])
 
         self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
         self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
@@ -309,6 +323,79 @@ class MainWindow(QtGui.QWidget):
             planeArea.sort()
 
         return planeArea
+
+
+    def loadPathFile(self):
+    
+        pathFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Path File', '.')
+        try:
+            with open(pathFileName) as pathFile:
+                pathData = pathFile.readlines()
+        except IOError:
+            return
+
+        if not ".path" in pathFileName:
+            QtGui.QMessageBox.about(self, "Error", "Not a Path File")
+            return
+            
+    	dataLen = len(pathData)
+
+        self.pos = empty((dataLen, 3))
+        self.size = empty((dataLen))
+        self.color = empty((dataLen, 4))
+       
+        idList = []
+        for i, j in enumerate(pathData):
+            
+            pathData[i] = pathData[i].split(' ')
+            self.pos[i] = tuple(pathData[i][0:3])
+            idList.append(pathData[i][3])
+            chargeID = int(pathData[i][3])
+            self.size[i] = .5
+            
+            if chargeID == 1:
+                self.color[i] = (1, 0, 0, 0.5)
+            
+            else:
+                
+                self.color[i] = (0, 1, 0, 0.5)
+                
+        """
+        idList = list(set(idList))
+        print idList
+        self.normID = self.normalizeChargeID(idList)
+        
+        for i, j in enumerate(self.normID):
+            self.color[i] = hot(self.normID[i])
+            print self.color[i]
+            self.coloristhere = True
+        """
+            
+        maxPos = self.pos[dataLen - 1]
+
+        xMaxPos = int(maxPos[0])
+        yMaxPos = int(maxPos[1])
+        zMaxPos = int(maxPos[2])
+
+        self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
+        self.plotWidget.addItem(self.plot)
+        self.plotAlreadyThere = True
+        self.previousDataSize = dataLen
+        
+    def normalizeChargeID(self, chargeID):
+        
+        normID = []
+        chargeID = map(float, chargeID)
+        minID = min(chargeID)
+        maxID = max(chargeID)
+
+        for i in range(0, len(chargeID)):
+            
+            norm = (chargeID[i] - minID) / (maxID - minID)
+            normID.append(norm)
+        
+        return normID
+            
 
 def main():
 
