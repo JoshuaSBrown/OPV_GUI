@@ -14,6 +14,7 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
+import itertools
 
 class MainWindow(QtGui.QWidget):
     
@@ -78,6 +79,13 @@ class MainWindow(QtGui.QWidget):
         self.viewAll = QtGui.QRadioButton("View All Areas")
         self.viewAll.toggled.connect(self.viewAllAreas)
 
+        self.surfaceAreaButton = QtGui.QRadioButton("Surface Area")
+        self.surfaceAreaButton.toggled.connect(self.makeSurfaceArea)
+
+        self.meshSurfaceButton = QtGui.QRadioButton("Mesh Surface Area")
+        self.meshSurfaceButton.toggled.connect(self.meshSurfaceArea)
+        self.meshSurfaceButton.setEnabled(False)
+
         self.xPlaneLabel = QtGui.QLabel("X-Plane")
         self.xPlaneLabel.setToolTip("ex) 1,4-7,15,17")
         self.yPlaneLabel = QtGui.QLabel("Y-Plane")
@@ -101,6 +109,8 @@ class MainWindow(QtGui.QWidget):
         doge.setAlignment(QtCore.Qt.AlignCenter)
 
         visibleAreasLayout.addWidget(self.viewAll)
+        visibleAreasLayout.addWidget(self.surfaceAreaButton)
+        visibleAreasLayout.addWidget(self.meshSurfaceButton)
         visibleAreasLayout.addWidget(self.xPlaneLabel)
         visibleAreasLayout.addWidget(self.xPlaneLE)
         visibleAreasLayout.addWidget(self.yPlaneLabel)
@@ -128,8 +138,16 @@ class MainWindow(QtGui.QWidget):
         self.loadPathButton = QtGui.QPushButton("Load Path File")
         self.loadPathButton.clicked.connect(self.loadPathFile)
 
+        self.chargeIdLabel = QtGui.QLabel("Charge ID")
+        
+        self.chargeIdCB = QtGui.QComboBox()
+        self.chargeIdCB.setEnabled(False)
+        self.chargeIdCB.currentIndexChanged.connect(lambda: self.selectChargeID())
+
         self.pathWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
         self.pathWidgetLayout.addWidget(self.loadPathButton)
+        self.pathWidgetLayout.addWidget(self.chargeIdLabel)
+        self.pathWidgetLayout.addWidget(self.chargeIdCB)
         self.pathWidgets.setLayout(self.pathWidgetLayout)
     
         self.xyzLayout.addWidget(self.xyzWidgets)
@@ -142,6 +160,21 @@ class MainWindow(QtGui.QWidget):
 
         self.plotAlreadyThere = False
         self.previousDataSize = 0
+        self.surfaceMade = False
+
+        self.meshVerts = []
+        self.xVerts1 = []
+        self.xVerts2 = []
+        self.yVerts1 = []
+        self.yVerts2 = []
+        self.zVerts1 = []
+        self.zVerts2 = []
+        self.xColors1 = []
+        self.xColors2 = []
+        self.yColors1 = []
+        self.yColors2 = []
+        self.zColors1 = []
+        self.zColors2 = []
 
         self.setLayout(self.mainLayout)
         self.resize(800, 600)
@@ -194,9 +227,9 @@ class MainWindow(QtGui.QWidget):
 
 		# insert surfaceArea code here if needed
 
-        xMaxPos = int(maxPos[0])
-        yMaxPos = int(maxPos[1])
-        zMaxPos = int(maxPos[2])
+        self.xMaxPos = int(maxPos[0])
+        self.yMaxPos = int(maxPos[1])
+        self.zMaxPos = int(maxPos[2])
 
         self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
         self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
@@ -206,7 +239,101 @@ class MainWindow(QtGui.QWidget):
         self.plotWidget.addItem(self.plot)
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
+
+    def makeSurfaceArea(self):
         
+        self.surfaceMade = True
+        self.newPos = [None] * len(self.pos)
+        self.newColor = [None] * len(self.color)
+
+        if self.surfaceAreaButton.isChecked():
+           
+            self.xPlaneLE.setEnabled(False)
+            self.yPlaneLE.setEnabled(False)
+            self.zPlaneLE.setEnabled(False)
+
+            for i in range(0, len(self.pos)):
+                self.size[i] = 0
+
+            for i in range(0, len(self.pos)):
+                
+                self.newPos[i] = self.pos[i].tolist()
+                self.newColor[i] = self.color[i].tolist()
+
+                if self.pos[i][0] == 0:
+                    self.xVerts1.append(self.newPos[i])
+                    self.xColors1.append(self.newColor[i])
+                    self.size[i] = .5
+                
+                elif self.pos[i][0] == 14:
+                    self.xVerts2.append(self.newPos[i])
+                    self.xColors2.append(self.newColor[i])
+                    self.size[i] = .5
+
+                elif self.pos[i][1] == 0:
+                    self.yVerts1.append(self.newPos[i])
+                    self.yColors1.append(self.newColor[i])
+                    self.size[i] = .5
+
+                elif self.pos[i][1] == 14:
+                    self.yVerts2.append(self.newPos[i])
+                    self.yColors2.append(self.newColor[i])
+                    self.size[i] = .5
+
+                elif self.pos[i][2] == 0:
+                    self.zVerts1.append(self.newPos[i])
+                    self.zColors1.append(self.newColor[i])
+                    self.size[i] = .5
+
+                elif self.pos[i][2] == 14:
+                    self.zVerts2.append(self.newPos[i])
+                    self.zColors2.append(self.newColor[i])
+                    self.size[i] = .5
+
+        else:
+
+            self.xPlaneLE.setEnabled(True)
+            self.yPlaneLE.setEnabled(True)
+            self.zPlaneLE.setEnabled(True)
+
+        self.meshSurfaceButton.setEnabled(True)
+
+    def meshSurfaceArea(self):
+
+        
+        if self.surfaceMade and self.meshSurfaceButton.isChecked():
+           
+            xFaces1 = map(list, itertools.product(range(self.xMaxPos),repeat=3))
+            print self.xColors1
+            self.xVerts1 = np.array(self.xVerts1)
+            print self.xVerts1
+
+            print "0"
+            xMeshData1 = gl.MeshData(vertexes=self.xVerts1)
+            print xMeshData1
+            #xMeshArea1 = gl.GLMeshItem(vertexes=xVertsPlane1, vertexColors = xColors1)
+            #xMeshArea1 = gl.GLMeshItem(meshdata=xMeshData1, smooth=False)
+            print "1"
+            xMeshArea1 = gl.GLMeshItem(meshdata=xMeshData1)
+            #xMeshArea1 = gl.GLMeshItem(vertexes=self.xVerts1)
+            print "2"
+            print type(self.xVerts1)
+            print self.xVerts1.shape
+            #xMeshArea1.setGLOptions('opaque')
+            self.plotWidget.removeItem(self.plot)
+            print "3"
+            self.plotWidget.addItem(xMeshArea1)
+            print "4"
+
+            """
+            meshArea = gl.GLMeshItem(vertexes=self.meshVerts, vetexColors=self.meshColors)
+            #meshArea.translate()
+            meshArea.setGLOptions('opaque')
+            self.plotWidget.addItem(self.plot)
+            """
+        else:
+            print "NO!!"
+
     def normalizeEnergy(self, energy):
         
         normEnergy = []
@@ -343,23 +470,51 @@ class MainWindow(QtGui.QWidget):
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
         self.color = empty((dataLen, 4))
-       
+      
+        chargeIdColorCode = {
+                
+                0: (1, 0, 0, .5), # Red
+                1: (1, .5, 0, .5), # Orange
+                2: (1, 1, 0, .5), # Yellow
+                3: (.5, 1, 0, .5), # Spring Green
+                4: (0, 1, 0, .5), # Green
+                5: (0, 1, .5, .5), # Turquoise
+                6: (0, 1, 1, .5), # Cyan
+                7: (0, .5, 1, .5), # Ocean
+                8: (0, 0, 1, .5), # Blue
+                9: (.5, 0, 1, .5), # Violet
+                10: (1, 0, 1, .5), # Magenta
+                11: (1, 0, .5, .5), # Raspberry
+
+                }
+
+
         idList = []
+        self.chargeIdDic = {}
+
         for i, j in enumerate(pathData):
             
             pathData[i] = pathData[i].split(' ')
             self.pos[i] = tuple(pathData[i][0:3])
+            
             idList.append(pathData[i][3])
             chargeID = int(pathData[i][3])
-            self.size[i] = .5
             
-            if chargeID == 1:
-                self.color[i] = (1, 0, 0, 0.5)
-            
+            if chargeID in self.chargeIdDic.keys():
+                self.chargeIdDic.setdefault(chargeID, []).append(i)
             else:
-                
-                self.color[i] = (0, 1, 0, 0.5)
-                
+                self.chargeIdDic[chargeID] = [i]
+
+            self.size[i] = .5
+            self.color[i] = chargeIdColorCode[chargeID]
+            
+        idList = list(set(idList)) 
+        idList.sort()
+        self.chargeIdCB.setEnabled(True)
+        self.chargeIdCB.addItems(["View All"])
+        self.chargeIdCB.addItems(idList)
+        self.chargeIdCB.setCurrentIndex(0)
+
         """
         idList = list(set(idList))
         print idList
@@ -381,21 +536,28 @@ class MainWindow(QtGui.QWidget):
         self.plotWidget.addItem(self.plot)
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
-        
-    def normalizeChargeID(self, chargeID):
-        
-        normID = []
-        chargeID = map(float, chargeID)
-        minID = min(chargeID)
-        maxID = max(chargeID)
+           
 
-        for i in range(0, len(chargeID)):
-            
-            norm = (chargeID[i] - minID) / (maxID - minID)
-            normID.append(norm)
+    def selectChargeID(self):
         
-        return normID
+        chargeID = self.chargeIdCB.currentText()
+
+        if chargeID == "View All":
+            for i in range(0, len(self.pos)):
+                self.size[i] = .5
+        else:
+            chargeID = int(chargeID)
             
+            for i in range(0, len(self.pos)):
+                self.size[i] = 0
+               
+            
+
+            for k, v in self.chargeIdDic.iteritems():
+                for i in range(0, len(self.pos)):
+                    if chargeID == k:
+                        self.size[v] = .5
+
 
 def main():
 
