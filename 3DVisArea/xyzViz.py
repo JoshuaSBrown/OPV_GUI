@@ -15,9 +15,9 @@ class xyzViz(QtGui.QWidget):
 
         # add init here
 
-    def loadXYZFile(self):
+    def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel, yPlaneLabel, zPlaneLabel):
         
-        xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File', '.')
+        xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File', '../Data')
         try:
             with open(xyzFileName) as xyzFile:
                 xyzData = xyzFile.readlines()
@@ -28,31 +28,32 @@ class xyzViz(QtGui.QWidget):
             QtGui.QMessageBox.about(self, "Error", "Not a xyz File")
             return
 
-        if self.plotAlreadyThere:
+        if plotAlreadyThere:
             for i in range(0, self.previousDataSize):
                 self.size[i] = 0
+        
+        #All the data points
+        energy = []
 
+        del xyzData[:2]
         dataLen = len(xyzData)
-
+        
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
         self.color = empty((dataLen, 4))
 
         self.coloristhere = False
-        
-        #All the data points
-        energy = []
+
         for i, j in enumerate(xyzData):
             
             xyzData[i] = xyzData[i].split('\t')
+            #print xyzData[i]
             del xyzData[i][0] # delete "C"
             self.pos[i] = tuple(xyzData[i][0:3])
             self.size[i] = .5
             energy.append(xyzData[i][3])
-            #color[i] = (1, 0, 0, 0.5)
-   
-        maxPos = self.pos[dataLen - 1]
 
+        maxPos = self.pos[dataLen - 1]
         self.normEnergy = self.normalizeEnergy(energy)
    		
         for i, j in enumerate(self.normEnergy):
@@ -65,13 +66,13 @@ class xyzViz(QtGui.QWidget):
         self.yMaxPos = int(maxPos[1])
         self.zMaxPos = int(maxPos[2])
 
-        self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
-        self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
-        self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
+        xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
+        yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
+        zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
 
         self.plot = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
-        self.plotWidget.addItem(self.plot)
-        self.plotAlreadyThere = True
+        plotWidget.addItem(self.plot)
+        plotAlreadyThere = True
         self.previousDataSize = dataLen
         
     def makeSurfaceArea(self):
@@ -183,20 +184,20 @@ class xyzViz(QtGui.QWidget):
         
         return normEnergy
     
-    def changeShape(self):
+    def changeShape(self, shapeCB, transSlider):
     
-        if self.shapeCB.currentText() == "Square":
-            self.transSlider.blockSignals(True)
+        if shapeCB.currentText() == "Square":
+            transSlider.blockSignals(True)
             self.plot.setGLOptions('opaque')
 
         else:
-            self.transSlider.blockSignals(False)
+            self.plot.setGLOptions('additive')
+            transSlider.blockSignals(False)
     
     def changeTrans(self, value):
       
         
         alpha = float(value)/float(100)
-        print alpha
         try:
             if self.coloristhere:
                 
@@ -214,31 +215,31 @@ class xyzViz(QtGui.QWidget):
             QtGui.QMessageBox.about(self, "Error", "Must load a xyz file first.")
 
 
-    def viewAllAreas(self):
+    def viewAllAreas(self, viewAll, xPlaneLE, yPlaneLE, zPlaneLE):
 
-            if self.viewAll.isChecked():
+            if viewAll.isChecked():
 
-                self.xPlaneLE.setEnabled(False)
-                self.yPlaneLE.setEnabled(False)
-                self.zPlaneLE.setEnabled(False)
+                xPlaneLE.setEnabled(False)
+                yPlaneLE.setEnabled(False)
+                zPlaneLE.setEnabled(False)
                 
                 for i in range(0, len(self.pos)):
                     self.size[i] = .5
 
             else:
 
-                self.xPlaneLE.setEnabled(True)
-                self.yPlaneLE.setEnabled(True)
-                self.zPlaneLE.setEnabled(True)
+                xPlaneLE.setEnabled(True)
+                yPlaneLE.setEnabled(True)
+                zPlaneLE.setEnabled(True)
     
-    def changeViewAreas(self): 
+    def changeViewAreas(self, plotAlreadyThere, xPlaneLE, yPlaneLE, zPlaneLE): 
    
-        if not self.plotAlreadyThere:
+        if not plotAlreadyThere:
             QtGui.QMessageBox.about(self, "Error", "Must load a xyz file first.")
 
-        xPlaneArea = self.parseAreaInput(self.xPlaneLE, self.xMaxPos)
-        yPlaneArea = self.parseAreaInput(self.yPlaneLE, self.xMaxPos)
-        zPlaneArea = self.parseAreaInput(self.zPlaneLE, self.xMaxPos)
+        xPlaneArea = self.parseAreaInput(xPlaneLE, self.xMaxPos)
+        yPlaneArea = self.parseAreaInput(yPlaneLE, self.xMaxPos)
+        zPlaneArea = self.parseAreaInput(zPlaneLE, self.xMaxPos)
         
         visualizeThese = []
         for i in range(0, len(self.pos)):

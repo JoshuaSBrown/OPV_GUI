@@ -101,7 +101,7 @@ class pathViz(QtGui.QWidget):
         self.previousDataSize = dataLen
            
 
-    def selectChargeID(self):
+    def selectPathChargeID(self):
         
         chargeID = self.chargeIdCB.currentText()
 
