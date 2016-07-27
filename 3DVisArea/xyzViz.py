@@ -2,9 +2,8 @@
 
 import sys
 from PyQt4 import QtGui, QtCore
-import pyqtgraph.examples
-import pyqtgraph as pg
-import pyqtgraph.opengl as gl
+import pyqtgraph_modified as pg
+import pyqtgraph_modified.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
@@ -17,10 +16,20 @@ class xyzViz(QtGui.QWidget):
 
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel, yPlaneLabel, zPlaneLabel):
         
+        widgetItems = plotWidget.items
+        prevPlot = []
+        
+        if len(widgetItems) > 3:
+            for i in range(3, len(widgetItems)):
+                prevPlot.append(widgetItems[i])
+                
+        print prevPlot
+        plotWidget.removeItem(prevPlot)
+        
         xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File', '../Data')
         try:
             with open(xyzFileName) as xyzFile:
-                xyzData = xyzFile.readlines()
+                self.xyzData = xyzFile.readlines()
         except IOError:
             return
 
@@ -35,8 +44,8 @@ class xyzViz(QtGui.QWidget):
         #All the data points
         energy = []
 
-        del xyzData[:2]
-        dataLen = len(xyzData)
+        del self.xyzData[:2]
+        dataLen = len(self.xyzData)
         
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
@@ -44,14 +53,14 @@ class xyzViz(QtGui.QWidget):
 
         self.coloristhere = False
 
-        for i, j in enumerate(xyzData):
+        for i, j in enumerate(self.xyzData):
             
-            xyzData[i] = xyzData[i].split('\t')
-            #print xyzData[i]
-            del xyzData[i][0] # delete "C"
-            self.pos[i] = tuple(xyzData[i][0:3])
+            self.xyzData[i] = self.xyzData[i].split('\t')
+            #print self.xyzData[i]
+            del self.xyzData[i][0] # delete "C"
+            self.pos[i] = tuple(self.xyzData[i][0:3])
             self.size[i] = .5
-            energy.append(xyzData[i][3])
+            energy.append(self.xyzData[i][3])
 
         maxPos = self.pos[dataLen - 1]
         self.normEnergy = self.normalizeEnergy(energy)
@@ -131,43 +140,6 @@ class xyzViz(QtGui.QWidget):
             self.yPlaneLE.setEnabled(True)
             self.zPlaneLE.setEnabled(True)
 
-        self.meshSurfaceButton.setEnabled(True)
-
-    def meshSurfaceArea(self):
-
-        
-        if self.surfaceMade and self.meshSurfaceButton.isChecked():
-           
-            xFaces1 = map(list, itertools.product(range(self.xMaxPos),repeat=3))
-            print self.xColors1
-            self.xVerts1 = np.array(self.xVerts1)
-            print self.xVerts1
-
-            print "0"
-            xMeshData1 = gl.MeshData(vertexes=self.xVerts1)
-            print xMeshData1
-            #xMeshArea1 = gl.GLMeshItem(vertexes=xVertsPlane1, vertexColors = xColors1)
-            #xMeshArea1 = gl.GLMeshItem(meshdata=xMeshData1, smooth=False)
-            print "1"
-            xMeshArea1 = gl.GLMeshItem(meshdata=xMeshData1)
-            #xMeshArea1 = gl.GLMeshItem(vertexes=self.xVerts1)
-            print "2"
-            print type(self.xVerts1)
-            print self.xVerts1.shape
-            #xMeshArea1.setGLOptions('opaque')
-            self.plotWidget.removeItem(self.plot)
-            print "3"
-            self.plotWidget.addItem(xMeshArea1)
-            print "4"
-
-            """
-            meshArea = gl.GLMeshItem(vertexes=self.meshVerts, vetexColors=self.meshColors)
-            #meshArea.translate()
-            meshArea.setGLOptions('opaque')
-            self.plotWidget.addItem(self.plot)
-            """
-        else:
-            print "NO!!"
 
     def normalizeEnergy(self, energy):
         
@@ -183,12 +155,63 @@ class xyzViz(QtGui.QWidget):
             #print norm
         
         return normEnergy
+        
+    def cubeViz(self):
+    
+        verts = np.array([
+            [0, 0, 0], #0
+            [0, 0, 1], #1
+            [0, 1, 0], #2
+            [0, 1, 1], #3
+            [1, 0, 0], #4
+            [1, 0, 1], #5
+            [1, 1, 0], #6
+            [1, 1, 1] #7
+            ])
+
+        faces = np.array([
+            [0, 4, 6],
+            [0, 6, 2],
+            [1, 5, 7],
+            [1, 7, 3],
+            [2, 6, 3],
+            [3, 7, 6],
+            [0, 4, 1],
+            [1, 5, 4],
+            [4, 5, 7],
+            [4, 6, 7],
+            [0, 1, 3],
+            [0, 2, 3]
+            ])
+
+        faceColors = np.array([
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3],
+            [1, 0, 0, 0.3]
+
+        ])
+
+        self.cube = verts[faces]
+        
+        print self.xyzData
+        
+        
     
     def changeShape(self, shapeCB, transSlider):
     
         if shapeCB.currentText() == "Square":
             transSlider.blockSignals(True)
-            self.plot.setGLOptions('opaque')
+            #self.plot.setGLOptions('opaque')
+            self.cubeViz()
 
         else:
             self.plot.setGLOptions('additive')

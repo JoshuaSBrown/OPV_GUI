@@ -9,9 +9,8 @@ Contact: soo.park@colorado.edu
 
 import sys
 from PyQt4 import QtGui, QtCore
-import pyqtgraph.examples
-import pyqtgraph as pg
-import pyqtgraph.opengl as gl
+import pyqtgraph_modified as pg
+import pyqtgraph_modified.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
@@ -72,34 +71,29 @@ class MainWindow(QtGui.QWidget):
         self.plotAlreadyThere = False
         self.currentPlotObj = None
 
-        # xyz Visualization
+        """
+        XYZ Visualization
+        """ 
         self.xyzWidgets = QtGui.QGroupBox("XYZ Visualization")
 
         loadButton = QtGui.QPushButton("Load XYZ File")
         
-        shapeLabel = QtGui.QLabel("Shape")
-        self.shapeCB = QtGui.QComboBox()
-        self.shapeCB.addItems(["Circle", "Square"])
-        self.shapeCB.setCurrentIndex(0)
+        xyzShapeLabel = QtGui.QLabel("Shape")
+        self.xyzShapeCB = QtGui.QComboBox()
+        self.xyzShapeCB.addItems(["Circle", "3D Cube"])
+        self.xyzShapeCB.setCurrentIndex(0)
 
         transLabel = QtGui.QLabel("Transparency")
-
         self.transSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.transSlider.valueChanged[int].connect(xyz.changeTrans)
 
         visibleAreas = QtGui.QGroupBox("Visible Areas")
         visibleAreas.setToolTip("Cannot excede the maximum number indicated next to the labels")
-
         visibleAreasLayout = QtGui.QVBoxLayout()
-
         self.viewAll = QtGui.QRadioButton("View All Areas")
 
         self.surfaceAreaButton = QtGui.QRadioButton("Surface Area")
         self.surfaceAreaButton.toggled.connect(xyz.makeSurfaceArea)
-
-        self.meshSurfaceButton = QtGui.QRadioButton("Mesh Surface Area")
-        self.meshSurfaceButton.toggled.connect(xyz.meshSurfaceArea)
-        self.meshSurfaceButton.setEnabled(False)
 
         self.xPlaneLabel = QtGui.QLabel("X-Plane")
         self.xPlaneLabel.setToolTip("ex) 1,4-7,15,17")
@@ -114,13 +108,8 @@ class MainWindow(QtGui.QWidget):
 
         submitButton = QtGui.QPushButton("Submit")
 
-        submitButton.clicked.connect(lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
-        loadButton.clicked.connect(lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel))
-        self.shapeCB.currentIndexChanged.connect(lambda: xyz.changeShape(self.shapeCB, self.transSlider))
-        self.viewAll.toggled.connect(lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
-
         spacer = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        
+                
         doge = QtGui.QLabel()
         dogeImg = QtGui.QPixmap("/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/images/dogeicon.png")
         dogeSmall = dogeImg.scaledToWidth(100)
@@ -129,7 +118,6 @@ class MainWindow(QtGui.QWidget):
 
         visibleAreasLayout.addWidget(self.viewAll)
         visibleAreasLayout.addWidget(self.surfaceAreaButton)
-        visibleAreasLayout.addWidget(self.meshSurfaceButton)
         visibleAreasLayout.addWidget(self.xPlaneLabel)
         visibleAreasLayout.addWidget(self.xPlaneLE)
         visibleAreasLayout.addWidget(self.yPlaneLabel)
@@ -142,8 +130,8 @@ class MainWindow(QtGui.QWidget):
         # adding widgets to respective layouts
         self.xyzWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
         self.xyzWidgetLayout.addWidget(loadButton)
-        self.xyzWidgetLayout.addWidget(shapeLabel)
-        self.xyzWidgetLayout.addWidget(self.shapeCB)
+        self.xyzWidgetLayout.addWidget(xyzShapeLabel)
+        self.xyzWidgetLayout.addWidget(self.xyzShapeCB)
         self.xyzWidgetLayout.addWidget(transLabel)
         self.xyzWidgetLayout.addWidget(self.transSlider)
         self.xyzWidgetLayout.addWidget(visibleAreas)
@@ -151,25 +139,45 @@ class MainWindow(QtGui.QWidget):
         self.xyzWidgetLayout.addWidget(doge)
         self.xyzWidgets.setLayout(self.xyzWidgetLayout)
         
-        # path
+        # connections
+        submitButton.clicked.connect(lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
+        loadButton.clicked.connect(lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel))
+        self.xyzShapeCB.currentIndexChanged.connect(lambda: xyz.changeShape(self.xyzShapeCB, self.transSlider))
+        self.viewAll.toggled.connect(lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
+
+        """
+        PATH Visualization
+        """ 
         self.pathWidgets = QtGui.QGroupBox("Path Visualization")
         self.pathWidgetLayout = QtGui.QVBoxLayout()
 
         self.loadPathButton = QtGui.QPushButton("Load Path File")
-        self.loadPathButton.clicked.connect(path.loadPathFile)
 
         self.pathChargeIdLabel = QtGui.QLabel("Charge ID")
-        
         self.pathChargeIdCB = QtGui.QComboBox()
         self.pathChargeIdCB.setEnabled(False)
-        self.pathChargeIdCB.currentIndexChanged.connect(lambda: path.selectPathChargeID)
+        
+        pathShapeLabel = QtGui.QLabel("Shape")
+        self.pathShapeCB = QtGui.QComboBox()
+        self.pathShapeCB.addItems(["Circle", "Square"])
+        self.pathShapeCB.setCurrentIndex(0)
 
         self.pathWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
         self.pathWidgetLayout.addWidget(self.loadPathButton)
         self.pathWidgetLayout.addWidget(self.pathChargeIdLabel)
         self.pathWidgetLayout.addWidget(self.pathChargeIdCB)
+        self.pathWidgetLayout.addWidget(pathShapeLabel)
+        self.pathWidgetLayout.addWidget(self.pathShapeCB)
         self.pathWidgets.setLayout(self.pathWidgetLayout)
         
+        self.loadPathButton.clicked.connect(lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))
+        self.pathChargeIdCB.currentIndexChanged.connect(lambda: path.selectPathChargeID(self.pathChargeIdCB))
+        self.pathShapeCB.currentIndexChanged.connect(lambda: path.changeShape(self.pathShapeCB))
+
+    
+        """
+        PERC Visualization
+        """
         self.percWidgets = QtGui.QGroupBox("Perc Visualization")
         self.percWidgetLayout = QtGui.QVBoxLayout()
         

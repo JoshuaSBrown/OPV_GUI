@@ -2,9 +2,8 @@
 
 import sys
 from PyQt4 import QtGui, QtCore
-import pyqtgraph.examples
-import pyqtgraph as pg
-import pyqtgraph.opengl as gl
+import pyqtgraph_modified as pg
+import pyqtgraph_modified.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
@@ -15,9 +14,22 @@ class pathViz(QtGui.QWidget):
 
         # add init here
 
-    def loadPathFile(self):
+    def loadPathFile(self, plotWidget, chargeIdCB):
     
-        pathFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Path File', '.')
+        self.plotWidget = plotWidget
+        widgetItems = self.plotWidget.items
+        prevPlot = []
+        
+        if len(widgetItems) > 3:
+            for i in range(3, len(widgetItems)):
+                prevPlot.append(widgetItems[i])
+                
+        print prevPlot
+        self.plotWidget.removeItem(prevPlot)
+
+        self.chargeIdCB = chargeIdCB
+        
+        pathFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Path File', '../Data')
         try:
             with open(pathFileName) as pathFile:
                 pathData = pathFile.readlines()
@@ -99,11 +111,13 @@ class pathViz(QtGui.QWidget):
         self.plotWidget.addItem(self.plot)
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
-           
+                   
 
-    def selectPathChargeID(self):
+    def selectPathChargeID(self, chargeIdCB):
         
-        chargeID = self.chargeIdCB.currentText()
+        chargeID = chargeIdCB.currentText()
+        
+        print chargeID
 
         if chargeID == "View All":
             for i in range(0, len(self.pos)):
@@ -120,4 +134,14 @@ class pathViz(QtGui.QWidget):
                 for i in range(0, len(self.pos)):
                     if chargeID == k:
                         self.size[v] = .5
+                        
+    def changeShape(self, shapeCB):
+    
+        if shapeCB.currentText() == "Square":
+            transSlider.blockSignals(True)
+            self.plot.setGLOptions('additive')
+
+        else:
+            self.plot.setGLOptions('additive')
+            transSlider.blockSignals(False)
 
