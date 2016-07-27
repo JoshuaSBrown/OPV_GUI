@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 
 import sys
 from PyQt4 import QtGui, QtCore
