@@ -83,12 +83,19 @@ class MainWindow(QtGui.QWidget):
         
     def loadData(self):
     
+        self.fileName = QtGui.QFileDialog.getOpenFileName(self, 'Load File', '../Data')
+        try:
+            with open(self.fileName) as file:
+                xyzData = file.readlines()
+        except IOError:
+            return
+        
         #fileName = "/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/Data/DataT300Vx0.3Vy0Vz0R1Energy.xyz"
-        fileName = "/Users/soorinpark/Downloads/DataT300Vx5Vy0Vz0R1Energy.xyz"
+        #fileName = "/Users/soorinpark/Downloads/DataT300Vx5Vy0Vz0R1Energy.xyz"
         #fileName = "/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/Data/DataT300Vx0.3Vy0Vz0R1.perc"
 
-        with open(fileName) as file:
-            xyzData = file.readlines()
+        #with open(fileName) as file:
+        #    xyzData = file.readlines()
 
         del xyzData[:2]
 
