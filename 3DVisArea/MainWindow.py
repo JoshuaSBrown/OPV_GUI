@@ -35,7 +35,7 @@ class MainWindow(QtGui.QWidget):
         # main layout declaration
         # main layout. plotLayout - xyzLayout - pathLayout
         self.mainLayout = QtGui.QHBoxLayout()
-        # plot layout.
+        # plot layout. Look at this to add a button
         self.plotLayout = QtGui.QVBoxLayout()
         # xyzWidgetsLayout that is used for the xyzWidgets QGroupBox
         self.xyzWidgetLayout = QtGui.QVBoxLayout()
