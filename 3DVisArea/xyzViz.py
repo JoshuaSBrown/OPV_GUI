@@ -2,11 +2,11 @@
 
 import sys
 from PyQt4 import QtGui, QtCore
-import pyqtgraph_modified as pg
-import pyqtgraph_modified.opengl as gl
+import pyqtgraph as pg
+import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
-import itertools
+# import itertools
 
 class xyzViz(QtGui.QWidget):
     def __init__(self):
@@ -15,17 +15,20 @@ class xyzViz(QtGui.QWidget):
         # add init here
 
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel, yPlaneLabel, zPlaneLabel):
-        
+
         widgetItems = plotWidget.items
         prevPlot = []
-        
+
         if len(widgetItems) > 3:
             for i in range(3, len(widgetItems)):
                 prevPlot.append(widgetItems[i])
-                
-        print prevPlot
-        plotWidget.removeItem(prevPlot)
-        
+
+#         try:
+#             plotWidget.removeItem(prevPlot)
+#          catch:
+#             pass
+
+
         xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File', '../Data')
         try:
             with open(xyzFileName) as xyzFile:
@@ -40,13 +43,13 @@ class xyzViz(QtGui.QWidget):
         if plotAlreadyThere:
             for i in range(0, self.previousDataSize):
                 self.size[i] = 0
-        
+
         #All the data points
         energy = []
 
         del self.xyzData[:2]
         dataLen = len(self.xyzData)
-        
+
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
         self.color = empty((dataLen, 4))
@@ -54,7 +57,7 @@ class xyzViz(QtGui.QWidget):
         self.coloristhere = False
 
         for i, j in enumerate(self.xyzData):
-            
+
             self.xyzData[i] = self.xyzData[i].split('\t')
             #print self.xyzData[i]
             del self.xyzData[i][0] # delete "C"
@@ -64,7 +67,7 @@ class xyzViz(QtGui.QWidget):
 
         maxPos = self.pos[dataLen - 1]
         self.normEnergy = self.normalizeEnergy(energy)
-   		
+
         for i, j in enumerate(self.normEnergy):
             self.color[i] = hot(self.normEnergy[i])
             self.coloristhere = True
@@ -83,15 +86,15 @@ class xyzViz(QtGui.QWidget):
         plotWidget.addItem(self.plot)
         plotAlreadyThere = True
         self.previousDataSize = dataLen
-        
+
     def makeSurfaceArea(self):
-        
+
         self.surfaceMade = True
         self.newPos = [None] * len(self.pos)
         self.newColor = [None] * len(self.color)
 
         if self.surfaceAreaButton.isChecked():
-           
+
             self.xPlaneLE.setEnabled(False)
             self.yPlaneLE.setEnabled(False)
             self.zPlaneLE.setEnabled(False)
@@ -100,7 +103,7 @@ class xyzViz(QtGui.QWidget):
                 self.size[i] = 0
 
             for i in range(0, len(self.pos)):
-                
+
                 self.newPos[i] = self.pos[i].tolist()
                 self.newColor[i] = self.color[i].tolist()
 
@@ -108,7 +111,7 @@ class xyzViz(QtGui.QWidget):
                     self.xVerts1.append(self.newPos[i])
                     self.xColors1.append(self.newColor[i])
                     self.size[i] = .5
-                
+
                 elif self.pos[i][0] == 14:
                     self.xVerts2.append(self.newPos[i])
                     self.xColors2.append(self.newColor[i])
@@ -142,22 +145,22 @@ class xyzViz(QtGui.QWidget):
 
 
     def normalizeEnergy(self, energy):
-        
+
         normEnergy = []
         energy = map(float, energy)
         minEnergy = min(energy)
         maxEnergy = max(energy)
 
         for i in range(0, len(energy)):
-            
+
             norm = (energy[i] - minEnergy) / (maxEnergy - minEnergy)
             normEnergy.append(norm)
             #print norm
-        
+
         return normEnergy
-        
+
     def cubeViz(self):
-    
+
         verts = np.array([
             [0, 0, 0], #0
             [0, 0, 1], #1
@@ -201,13 +204,13 @@ class xyzViz(QtGui.QWidget):
         ])
 
         self.cube = verts[faces]
-        
+
         print self.xyzData
-        
-        
-    
+
+
+
     def changeShape(self, shapeCB, transSlider):
-    
+
         if shapeCB.currentText() == "Square":
             transSlider.blockSignals(True)
             #self.plot.setGLOptions('opaque')
@@ -216,21 +219,21 @@ class xyzViz(QtGui.QWidget):
         else:
             self.plot.setGLOptions('additive')
             transSlider.blockSignals(False)
-    
+
     def changeTrans(self, value):
-      
-        
+
+
         alpha = float(value)/float(100)
         try:
             if self.coloristhere:
-                
+
                 for i in range(0, len(self.normEnergy)):
                     self.color[i] = hot(self.normEnergy[i], alpha)
 
             if value >= 98:
-            
+
                 self.plot.setGLOptions('translucent')
-       
+
             else:
 
                 self.plot.setGLOptions('additive')
@@ -245,7 +248,7 @@ class xyzViz(QtGui.QWidget):
                 xPlaneLE.setEnabled(False)
                 yPlaneLE.setEnabled(False)
                 zPlaneLE.setEnabled(False)
-                
+
                 for i in range(0, len(self.pos)):
                     self.size[i] = .5
 
@@ -254,55 +257,55 @@ class xyzViz(QtGui.QWidget):
                 xPlaneLE.setEnabled(True)
                 yPlaneLE.setEnabled(True)
                 zPlaneLE.setEnabled(True)
-    
-    def changeViewAreas(self, plotAlreadyThere, xPlaneLE, yPlaneLE, zPlaneLE): 
-   
+
+    def changeViewAreas(self, plotAlreadyThere, xPlaneLE, yPlaneLE, zPlaneLE):
+
         if not plotAlreadyThere:
             QtGui.QMessageBox.about(self, "Error", "Must load a xyz file first.")
 
         xPlaneArea = self.parseAreaInput(xPlaneLE, self.xMaxPos)
-        yPlaneArea = self.parseAreaInput(yPlaneLE, self.xMaxPos)
-        zPlaneArea = self.parseAreaInput(zPlaneLE, self.xMaxPos)
-        
+        yPlaneArea = self.parseAreaInput(yPlaneLE, self.yMaxPos)
+        zPlaneArea = self.parseAreaInput(zPlaneLE, self.zMaxPos)
+
         visualizeThese = []
         for i in range(0, len(self.pos)):
             for x in range(0, len(xPlaneArea)):
                 for y in range(0, len(yPlaneArea)):
                     for z in range(0, len(zPlaneArea)):
                         self.size[i] = 0
-                        if ((self.pos[i][0] == xPlaneArea[x]) and (self.pos[i][1] == yPlaneArea[y]) and (self.pos[i][2] == zPlaneArea[z])): 
+                        if ((self.pos[i][0] == xPlaneArea[x]) and (self.pos[i][1] == yPlaneArea[y]) and (self.pos[i][2] == zPlaneArea[z])):
                             visualizeThese.append(i)
-                            
+
         for j in range(0, len(visualizeThese)):
             self.size[visualizeThese[j]] = .5
             #print j, self.pos[visualizeThese[j]]
 
     def parseAreaInput(self, planeArea, maxPos):
-        
+
         planeAreaLE = planeArea
         planeArea = str(planeArea.text())
         planeArea = planeArea.split(",")
-        
+
         temp1 = []
         temp2 = []
 
         for i in range(0,len(planeArea)):
             if "-" in planeArea[i]:
-                
+
                 temp = planeArea[i].split("-")
-                foo = int(temp[0]) 
+                foo = int(temp[0])
                 bar = int(temp[1])
                 temp1 = range(foo, bar+1)
                 planeArea.extend(temp1)
                 temp2.append(planeArea[i])
-            
-        
+
+
         for i in range(0,len(temp2)):
-            planeArea.remove(temp2[i])  
-    
+            planeArea.remove(temp2[i])
+
         if not planeArea[0]:
             planeArea = range(0, maxPos)
-            planeAreaLE.setText("0-%i" % maxPos) 
+            planeAreaLE.setText("0-%i" % maxPos)
         else:
             planeArea = map(int, planeArea)
             planeArea.sort()

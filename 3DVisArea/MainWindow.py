@@ -8,39 +8,46 @@ Contact: soo.park@colorado.edu
 """
 
 import sys
+import os
 from PyQt4 import QtGui, QtCore
-import pyqtgraph_modified as pg
-import pyqtgraph_modified.opengl as gl
-from numpy import *
-from matplotlib.cm import *
-import itertools
+# import pyqtgraph as pg
+import pyqtgraph.opengl as gl
+# from numpy import *
+# from matplotlib.cm import *
+# import itertools
+import xyzViz
+import pathViz
+import percViz
+import trapViz
 
-import xyzViz, pathViz, percViz, trapViz
 
 class MainWindow(QtGui.QWidget):
-    
+
     def __init__(self):
         super(MainWindow, self).__init__()
-        
-        # import modules
+
+        # imported modules
         xyz = xyzViz.xyzViz()
         path = pathViz.pathViz()
         perc = percViz.percViz()
         trap = trapViz.trapViz()
-        
+
         # main layout declaration
-        self.mainLayout = QtGui.QHBoxLayout() # main layout. plotLayout - xyzLayout - pathLayout
-        self.plotLayout = QtGui.QVBoxLayout() # plot layout. 
-        self.xyzWidgetLayout = QtGui.QVBoxLayout() # xyzWidgetsLayout that is used for the xyzWidgets QGroupBox
-        self.xyzLayout = QtGui.QVBoxLayout() # xyzLayout that contains xyzWidgets.
+        # main layout. plotLayout - xyzLayout - pathLayout
+        self.mainLayout = QtGui.QHBoxLayout()
+        # plot layout.
+        self.plotLayout = QtGui.QVBoxLayout()
+        # xyzWidgetsLayout that is used for the xyzWidgets QGroupBox
+        self.xyzWidgetLayout = QtGui.QVBoxLayout()
+        # xyzLayout that contains xyzWidgets.
+        self.xyzLayout = QtGui.QVBoxLayout()
         self.pathWigetsLayout = QtGui.QVBoxLayout()
         self.pathLayout = QtGui.QVBoxLayout()
         self.percWidgetsLayout = QtGui.QVBoxLayout()
         self.percLayout = QtGui.QVBoxLayout()
         self.trapWidgetsLayout = QtGui.QVBoxLayout()
         self.trapLayout = QtGui.QVBoxLayout()
-        
-		# Plotting and Grids
+        # Plotting and Grids
         self.plotWidget = gl.GLViewWidget()
         self.plotWidget.setFixedSize(600, 600)
         self.plotWidget.opts['distance'] = 100
@@ -48,7 +55,7 @@ class MainWindow(QtGui.QWidget):
         xgrid = gl.GLGridItem()
         ygrid = gl.GLGridItem()
         zgrid = gl.GLGridItem()
-        
+
         self.plotWidget.addItem(xgrid)
         self.plotWidget.addItem(ygrid)
         self.plotWidget.addItem(zgrid)
@@ -73,11 +80,11 @@ class MainWindow(QtGui.QWidget):
 
         """
         XYZ Visualization
-        """ 
+        """
         self.xyzWidgets = QtGui.QGroupBox("XYZ Visualization")
 
         loadButton = QtGui.QPushButton("Load XYZ File")
-        
+
         xyzShapeLabel = QtGui.QLabel("Shape")
         self.xyzShapeCB = QtGui.QComboBox()
         self.xyzShapeCB.addItems(["Circle", "3D Cube"])
@@ -88,7 +95,8 @@ class MainWindow(QtGui.QWidget):
         self.transSlider.valueChanged[int].connect(xyz.changeTrans)
 
         visibleAreas = QtGui.QGroupBox("Visible Areas")
-        visibleAreas.setToolTip("Cannot excede the maximum number indicated next to the labels")
+        visibleAreas.setToolTip("Cannot excede the +\
+         maximum number indicated next to the labels")
         visibleAreasLayout = QtGui.QVBoxLayout()
         self.viewAll = QtGui.QRadioButton("View All Areas")
 
@@ -101,17 +109,19 @@ class MainWindow(QtGui.QWidget):
         self.yPlaneLabel.setToolTip("ex) 1,4-7,15,17")
         self.zPlaneLabel = QtGui.QLabel("Z-Plane")
         self.zPlaneLabel.setToolTip("ex) 1,4-7,15,17")
-        
+
         self.xPlaneLE = QtGui.QLineEdit()
         self.yPlaneLE = QtGui.QLineEdit()
         self.zPlaneLE = QtGui.QLineEdit()
 
         submitButton = QtGui.QPushButton("Submit")
 
-        spacer = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-                
+        spacer = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum,
+                                   QtGui.QSizePolicy.Expanding)
+
         doge = QtGui.QLabel()
-        dogeImg = QtGui.QPixmap("/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/images/dogeicon.png")
+        dogeImg = QtGui.QPixmap(str(
+            os.path.abspath(os.path.join("images", "dogeicon.png"))))
         dogeSmall = dogeImg.scaledToWidth(100)
         doge.setPixmap(dogeSmall)
         doge.setAlignment(QtCore.Qt.AlignCenter)
@@ -138,16 +148,24 @@ class MainWindow(QtGui.QWidget):
         self.xyzWidgetLayout.addItem(spacer)
         self.xyzWidgetLayout.addWidget(doge)
         self.xyzWidgets.setLayout(self.xyzWidgetLayout)
-        
+
         # connections
-        submitButton.clicked.connect(lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
-        loadButton.clicked.connect(lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel))
-        self.xyzShapeCB.currentIndexChanged.connect(lambda: xyz.changeShape(self.xyzShapeCB, self.transSlider))
-        self.viewAll.toggled.connect(lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
+        submitButton.clicked.connect(lambda: xyz.changeViewAreas(
+                                     self.plotAlreadyThere, self.xPlaneLE,
+                                     self.yPlaneLE, self.zPlaneLE))
+        loadButton.clicked.connect(lambda: xyz.loadXYZFile(
+            self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel,
+            self.yPlaneLabel, self.zPlaneLabel))
+
+        self.xyzShapeCB.currentIndexChanged.connect(lambda: xyz.changeShape(
+            self.xyzShapeCB, self.transSlider))
+
+        self.viewAll.toggled.connect(lambda: xyz.viewAllAreas(
+            self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
 
         """
         PATH Visualization
-        """ 
+        """
         self.pathWidgets = QtGui.QGroupBox("Path Visualization")
         self.pathWidgetLayout = QtGui.QVBoxLayout()
 
@@ -156,7 +174,7 @@ class MainWindow(QtGui.QWidget):
         self.pathChargeIdLabel = QtGui.QLabel("Charge ID")
         self.pathChargeIdCB = QtGui.QComboBox()
         self.pathChargeIdCB.setEnabled(False)
-        
+
         pathShapeLabel = QtGui.QLabel("Shape")
         self.pathShapeCB = QtGui.QComboBox()
         self.pathShapeCB.addItems(["Circle", "Square"])
@@ -169,53 +187,59 @@ class MainWindow(QtGui.QWidget):
         self.pathWidgetLayout.addWidget(pathShapeLabel)
         self.pathWidgetLayout.addWidget(self.pathShapeCB)
         self.pathWidgets.setLayout(self.pathWidgetLayout)
-        
-        self.loadPathButton.clicked.connect(lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))
-        self.pathChargeIdCB.currentIndexChanged.connect(lambda: path.selectPathChargeID(self.pathChargeIdCB))
-        self.pathShapeCB.currentIndexChanged.connect(lambda: path.changeShape(self.pathShapeCB))
 
-    
+        self.loadPathButton.clicked.connect(lambda: path.loadPathFile(
+            self.plotWidget, self.pathChargeIdCB))
+        self.pathChargeIdCB.currentIndexChanged.connect(
+            lambda: path.selectPathChargeID(self.pathChargeIdCB))
+        self.pathShapeCB.currentIndexChanged.connect(
+            lambda: path.changeShape(self.pathShapeCB))
+
         """
         PERC Visualization
         """
         self.percWidgets = QtGui.QGroupBox("Perc Visualization")
         self.percWidgetLayout = QtGui.QVBoxLayout()
-        
+
         self.loadPercButton = QtGui.QPushButton("Load Perc File")
-        
+
         self.percChargeIdLabel = QtGui.QLabel("Charge ID")
-        
+
         self.percChargeIdCB = QtGui.QComboBox()
         self.percChargeIdCB.setEnabled(False)
-        self.percChargeIdCB.currentIndexChanged.connect(lambda: perc.selectPercChargeID(self.plotWidget))
-       
-        self.loadPercButton.clicked.connect(lambda: perc.loadPercFile(self.percChargeIdCB, self.plotWidget))
+        self.percChargeIdCB.currentIndexChanged.connect(
+            lambda: perc.selectPercChargeID(self.plotWidget))
+
+        self.loadPercButton.clicked.connect(
+            lambda: perc.loadPercFile(self.percChargeIdCB, self.plotWidget))
 
         self.percWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
         self.percWidgetLayout.addWidget(self.loadPercButton)
         self.percWidgetLayout.addWidget(self.percChargeIdLabel)
         self.percWidgetLayout.addWidget(self.percChargeIdCB)
         self.percWidgets.setLayout(self.percWidgetLayout)
-        
+
         self.trapWidgets = QtGui.QGroupBox("Trap Visualization")
         self.trapWidgetLayout = QtGui.QVBoxLayout()
-        
+
         self.loadTrapButton = QtGui.QPushButton("Load Trap File")
-        
+
         self.trapChargeIdLabel = QtGui.QLabel("Charge ID")
-        
+
         self.trapChargeIdCB = QtGui.QComboBox()
         self.trapChargeIdCB.setEnabled(False)
-        self.trapChargeIdCB.currentIndexChanged.connect(lambda: trap.selectTrapChargeID(self.plotWidget))
-       
-        self.loadTrapButton.clicked.connect(lambda: trap.loadTrapFile(self.trapChargeIdCB, self.plotWidget))
+        self.trapChargeIdCB.currentIndexChanged.connect(
+            lambda: trap.selectTrapChargeID(self.plotWidget))
+
+        self.loadTrapButton.clicked.connect(
+            lambda: trap.loadTrapFile(self.trapChargeIdCB, self.plotWidget))
 
         self.trapWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
         self.trapWidgetLayout.addWidget(self.loadTrapButton)
         self.trapWidgetLayout.addWidget(self.trapChargeIdLabel)
         self.trapWidgetLayout.addWidget(self.trapChargeIdCB)
         self.trapWidgets.setLayout(self.trapWidgetLayout)
-				    
+
         self.xyzLayout.addWidget(self.xyzWidgets)
         self.plotLayout.addWidget(self.plotWidget)
         self.pathLayout.addWidget(self.pathWidgets)
@@ -227,7 +251,6 @@ class MainWindow(QtGui.QWidget):
         self.mainLayout.addLayout(self.pathLayout)
         self.mainLayout.addLayout(self.percLayout)
         self.mainLayout.addLayout(self.trapLayout)
-
 
         self.previousDataSize = 0
         self.surfaceMade = False
@@ -257,6 +280,7 @@ def main():
     app = QtGui.QApplication(sys.argv)
     ex = MainWindow()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()

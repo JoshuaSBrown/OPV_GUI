@@ -12,9 +12,9 @@ import itertools
 class trapViz(QtGui.QWidget):
     def __init__(self):
         super(trapViz, self).__init__()
-        
+
     def loadTrapFile(self, trapChargeIdCB, plotWidget):
-    
+
         trapFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Trap File', '.')
         try:
             with open(trapFileName) as trapFile:
@@ -31,9 +31,9 @@ class trapViz(QtGui.QWidget):
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
         self.color = empty((dataLen, 4))
-      
+
         chargeIdColorCode = {
-                
+
                 0: (1, 0, 0, 1), # Red
                 1: (1, .5, 0, 1), # Orange
                 2: (1, 1, 0, 1), # Yellow
@@ -57,7 +57,7 @@ class trapViz(QtGui.QWidget):
 
         for i, j in enumerate(trapData):
             temp = trapData[i].split(' ')
-            
+
             if (len(temp) == 2):
                 currentKey = temp[0]
                 self.trapDataDic.setdefault(temp[0], [])
@@ -65,10 +65,10 @@ class trapViz(QtGui.QWidget):
                     idList.append(currentKey)
             else:
                 self.trapDataDic[currentKey].append(temp)
-            
-            
+
+
         for k,v in self.trapDataDic.iteritems():
-            
+
             dataLen = len(v)
 
             self.pos = empty((dataLen,3))
@@ -76,14 +76,14 @@ class trapViz(QtGui.QWidget):
             self.color = empty((dataLen,4))
 
             for i,j in enumerate(v):
-                
+
                 self.pos[i] = tuple(v[i][0:3])
                 self.size[i] = .5
                 self.color[i] = chargeIdColorCode[int(k)]
 
             self.plotDic[k] = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
 
-        idList.sort()        
+        idList.sort()
         self.trapChargeIdCB = trapChargeIdCB
         self.trapChargeIdCB.setEnabled(True)
         self.trapChargeIdCB.addItems(["View All"])
@@ -96,17 +96,17 @@ class trapViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-        
+
         self.plotWidget = plotWidget
-       
+
         for k,v in self.plotDic.iteritems():
             self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
-        
-    def selectPercChargeID(self, plotWidget):
-        
+
+    def selectTrapChargeID(self, plotWidget):
+
         chargeID = str(self.trapChargeIdCB.currentText())
         if chargeID != "View All":
             for k,v in self.plotDic.iteritems():
@@ -115,23 +115,23 @@ class trapViz(QtGui.QWidget):
                     print "removed: ", k, self.plotDic[k]
                 except ValueError:
                     pass
-        
+
         for k,v in self.plotDic.iteritems():
             if k == chargeID:
                 print "added: ", k, self.plotDic[k]
                 plotWidget.addItem(self.plotDic[k])
-        """ 
+        """
 
         if chargeID == "View All":
             for i in range(0, len(self.pos)):
                 self.size[i] = .5
         else:
             chargeID = int(chargeID)
-            
+
             for i in range(0, len(self.pos)):
                 self.size[i] = 0
-               
-            
+
+
 
             for k, v in self.chargeIdDic.iteritems():
                 for i in range(0, len(self.pos)):

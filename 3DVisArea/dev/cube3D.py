@@ -2,8 +2,8 @@
 
 import sys
 from PyQt4 import QtGui, QtCore
-import pyqtgraph_modified as pg
-import pyqtgraph_modified.opengl as gl
+import pyqtgraph as pg
+import pyqtgraph.opengl as gl
 import numpy as np
 import matplotlib.cm 
 
