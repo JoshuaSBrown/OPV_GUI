@@ -151,8 +151,8 @@ class MainWindow(QtGui.QWidget):
 
         # connections
         submitButton.clicked.connect(lambda: xyz.changeViewAreas(
-                                     self.plotAlreadyThere, self.xPlaneLE,
-                                     self.yPlaneLE, self.zPlaneLE))
+            self.plotAlreadyThere, self.xPlaneLE,
+            self.yPlaneLE, self.zPlaneLE))
         loadButton.clicked.connect(lambda: xyz.loadXYZFile(
             self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel,
             self.yPlaneLabel, self.zPlaneLabel))
