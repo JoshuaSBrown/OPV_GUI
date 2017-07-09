@@ -10,48 +10,62 @@ from matplotlib.cm import *
 import itertools
 #import MainWindow
 from MainWindow import *
+from worker import Worker
+
 
 class percViz(QtGui.QWidget):
+
+    mysignal = QtCore.pyqtSignal(list, bool)
+
     def __init__(self):
         super(percViz, self).__init__()
-        #main = MainWindow.MainWindow()
+        # main = MainWindow.MainWindow()
 
     def loadPercFile(self, percChargeIdCB, plotWidget):
+        self.plotWidget = plotWidget
+        self.percChargeIdCB = percChargeIdCB
+        percFileName = QtGui.QFileDialog.getOpenFileName(
+            self, 'Load Perc File', '.')
 
-        percFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Perc File', '.')
-        try:
-            with open(percFileName) as percFile:
-                percData = percFile.readlines()
-        except IOError:
+        self.worker = Worker(percFileName, self.mysignal, ".perc")
+        self.worker.start()
+        self.mysignal.connect(self.printData)
+
+        # try:
+        #     with open(percFileName) as percFile:
+        #         percData = percFile.readlines()
+        # except IOError:
+        #     return
+
+        # if ".perc" not in percFileName:
+        #     QtGui.QMessageBox.about(self, "Error", "Not a Perc File")
+        #     return
+
+    def printData(self, percData, mybool):
+        if not mybool:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .perc File or is currupted")
             return
-
-        if not ".perc" in percFileName:
-            QtGui.QMessageBox.about(self, "Error", "Not a Perc File")
-            return
-
-    	dataLen = len(percData)
+        dataLen = len(percData)
 
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
         self.color = empty((dataLen, 4))
 
         chargeIdColorCode = {
-
-                0: (1, 0, 0, 1), # Red
-                1: (1, .5, 0, 1), # Orange
-                2: (1, 1, 0, 1), # Yellow
-                3: (.5, 1, 0, 1), # Spring Green
-                4: (0, 1, 0, 1), # Green
-                5: (0, 1, .5, 1), # Turquoise
-                6: (0, 1, 1, 1), # Cyan
-                7: (0, .5, 1, 1), # Ocean
-                8: (0, 0, 1, 1), # Blue
-                9: (.5, 0, 1, 1), # Violet
-                10: (1, 0, 1, 1), # Magenta
-                11: (1, 0, .5, 1), # Raspberry
-
-                }
-
+            0: (1, 0, 0, 1),  # Red
+            1: (1, .5, 0, 1),  # Orange
+            2: (1, 1, 0, 1),  # Yellow
+            3: (.5, 1, 0, 1),  # Spring Green
+            4: (0, 1, 0, 1),  # Green
+            5: (0, 1, .5, 1),  # Turquoise
+            6: (0, 1, 1, 1),  # Cyan
+            7: (0, .5, 1, 1),  # Ocean
+            8: (0, 0, 1, 1),  # Blue
+            9: (.5, 0, 1, 1),  # Violet
+            10: (1, 0, 1, 1),  # Magenta
+            11: (1, 0, .5, 1),  # Raspberry
+        }
 
         idList = []
         self.chargeIdDic = {}
@@ -69,25 +83,24 @@ class percViz(QtGui.QWidget):
             else:
                 self.percDataDic[currentKey].append(temp)
 
-
-        for k,v in self.percDataDic.iteritems():
+        for k, v in self.percDataDic.iteritems():
 
             dataLen = len(v)
 
-            self.pos = empty((dataLen,3))
+            self.pos = empty((dataLen, 3))
             self.size = empty((dataLen))
-            self.color = empty((dataLen,4))
+            self.color = empty((dataLen, 4))
 
-            for i,j in enumerate(v):
+            for i, j in enumerate(v):
 
                 self.pos[i] = tuple(v[i][0:3])
                 self.size[i] = .5
                 self.color[i] = chargeIdColorCode[int(k)]
 
-            self.plotDic[k] = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
+            self.plotDic[k] = gl.GLScatterPlotItem(
+                pos=self.pos, size=self.size, color=self.color, pxMode=False)
 
         idList.sort()
-        self.percChargeIdCB = percChargeIdCB
         self.percChargeIdCB.setEnabled(True)
         self.percChargeIdCB.addItems(["View All"])
         self.percChargeIdCB.addItems(idList)
@@ -99,10 +112,7 @@ class percViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-
-        self.plotWidget = plotWidget
-
-        for k,v in self.plotDic.iteritems():
+        for k, v in self.plotDic.iteritems():
             self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
@@ -112,14 +122,14 @@ class percViz(QtGui.QWidget):
 
         chargeID = str(self.percChargeIdCB.currentText())
         if chargeID != "View All":
-            for k,v in self.plotDic.iteritems():
+            for k, v in self.plotDic.iteritems():
                 try:
                     plotWidget.removeItem(self.plotDic[k])
                     print "removed: ", k, self.plotDic[k]
                 except ValueError:
                     pass
 
-        for k,v in self.plotDic.iteritems():
+        for k, v in self.plotDic.iteritems():
             if k == chargeID:
                 print "added: ", k, self.plotDic[k]
                 plotWidget.addItem(self.plotDic[k])

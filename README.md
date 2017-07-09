@@ -10,6 +10,6 @@ This is the git repository for the OPV GUI project.
 * [ ] Separate GUI and backend to increase speed
     * [X] ~~xyzViz~~
     * [X] ~~pathViz~~
-    * [ ] percViz
+    * [X] ~~percViz~~
     * [ ] trapViz
 * [ ] More Documentation
