@@ -8,4 +8,8 @@ This is the git repository for the OPV GUI project.
 
 ## Todo
 * [ ] Separate GUI and backend to increase speed
+    * [X] ~~xyzViz~~
+    * [ ] pathViz
+    * [ ] percViz
+    * [ ] trapViz
 * [ ] More Documentation
