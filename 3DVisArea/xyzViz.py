@@ -13,8 +13,7 @@ from worker import Worker
 
 class xyzViz(QtGui.QWidget):
 
-    mysignal = QtCore.pyqtSignal(list, bool, QtGui.QLabel, QtGui.QLabel,
-                                 QtGui.QLabel)
+    mysignal = QtCore.pyqtSignal(list, bool)
 
     def __init__(self):
         super(xyzViz, self).__init__()
@@ -24,6 +23,9 @@ class xyzViz(QtGui.QWidget):
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel,
                     yPlaneLabel, zPlaneLabel):
         self.plotWidget = plotWidget
+        self.xPlaneLabel = xPlaneLabel
+        self.yPlaneLabel = yPlaneLabel
+        self.zPlaneLabel = zPlaneLabel
         widgetItems = plotWidget.items
         prevPlot = []
 
@@ -38,8 +40,7 @@ class xyzViz(QtGui.QWidget):
 
         xyzFileName = QtGui.QFileDialog.getOpenFileName(
             self, 'Load XYZ File', '../Data')
-        self.worker = Worker(xyzFileName, self.mysignal, xPlaneLabel,
-                             yPlaneLabel, zPlaneLabel)
+        self.worker = Worker(xyzFileName, self.mysignal, ".xyz")
         self.worker.start()
         self.mysignal.connect(self.printData)
 
@@ -57,7 +58,11 @@ class xyzViz(QtGui.QWidget):
         # except IOError:
         #     return
 
-    def printData(self, xyzData, bool, xPlaneLabel, yPlaneLabel, zPlaneLabel):
+    def printData(self, xyzData, mybool):
+        if not mybool:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .xyz File or is currupted")
+            return
         self.xyzData = xyzData
         # All the data points
         energy = []
@@ -92,9 +97,9 @@ class xyzViz(QtGui.QWidget):
         self.yMaxPos = int(maxPos[1])
         self.zMaxPos = int(maxPos[2])
 
-        xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
-        yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
-        zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
+        self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
+        self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
+        self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
 
         self.plot = gl.GLScatterPlotItem(
             pos=self.pos, size=self.size, color=self.color, pxMode=False)
