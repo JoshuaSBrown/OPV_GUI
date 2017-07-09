@@ -6,16 +6,19 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
+from worker import Worker
 # import itertools
 
+
 class xyzViz(QtGui.QWidget):
+
+    mysignal = QtCore.pyqtSignal(list, bool)
     def __init__(self):
         super(xyzViz, self).__init__()
 
         # add init here
 
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel, yPlaneLabel, zPlaneLabel):
-
         widgetItems = plotWidget.items
         prevPlot = []
 
@@ -28,23 +31,28 @@ class xyzViz(QtGui.QWidget):
 #          catch:
 #             pass
 
-
         xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File', '../Data')
-        try:
-            with open(xyzFileName) as xyzFile:
-                self.xyzData = xyzFile.readlines()
-        except IOError:
-            return
+        self.worker = Worker(xyzFileName, self.mysignal)
+        self.worker.start()
+        self.mysignal.connect(self.printData)
 
-        if not ".xyz" in xyzFileName:
-            QtGui.QMessageBox.about(self, "Error", "Not a xyz File")
-            return
+        # if ".xyz" not in xyzFileName:
+        #     QtGui.QMessageBox.about(self, "Error", "Not a xyz File")
+        #     return
 
-        if plotAlreadyThere:
-            for i in range(0, self.previousDataSize):
-                self.size[i] = 0
+        # try:
+        #     with open(xyzFileName) as xyzFile:
+        #         self.xyzData = xyzFile.readlines()
+        # except IOError:
+        #     return
 
-        #All the data points
+        # if plotAlreadyThere:
+        #     for i in range(0, self.previousDataSize):
+        #         self.size[i] = 0
+
+    def printData(self, xyzData, bool):
+        self.xyzData = xyzData
+        # All the data points
         energy = []
 
         del self.xyzData[:2]
@@ -72,7 +80,7 @@ class xyzViz(QtGui.QWidget):
             self.color[i] = hot(self.normEnergy[i])
             self.coloristhere = True
 
-		# insert surfaceArea code here if needed
+    # insert surfaceArea code here if needed
 
         self.xMaxPos = int(maxPos[0])
         self.yMaxPos = int(maxPos[1])
