@@ -152,7 +152,6 @@ class MainWindow(QtGui.QWidget):
             lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
         )
 
-        # TODO: Its the loads buttons that need its own thread
         loadButton.clicked.connect(
             lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel)
         )

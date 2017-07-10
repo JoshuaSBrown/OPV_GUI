@@ -76,9 +76,8 @@ class xyzViz(QtGui.QWidget):
         self.coloristhere = False
 
         for i, j in enumerate(self.xyzData):
-
             self.xyzData[i] = self.xyzData[i].split('\t')
-            #print self.xyzData[i]
+            # print self.xyzData[i]
             del self.xyzData[i][0]  # delete "C"
             self.pos[i] = tuple(self.xyzData[i][0:3])
             self.size[i] = .5
@@ -91,8 +90,7 @@ class xyzViz(QtGui.QWidget):
             self.color[i] = hot(self.normEnergy[i])
             self.coloristhere = True
 
-    # insert surfaceArea code here if needed
-
+        # insert surfaceArea code here if needed
         self.xMaxPos = int(maxPos[0])
         self.yMaxPos = int(maxPos[1])
         self.zMaxPos = int(maxPos[2])
