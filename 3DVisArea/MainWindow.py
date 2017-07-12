@@ -22,7 +22,6 @@ import trapViz
 
 
 class MainWindow(QtGui.QWidget):
-
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -77,7 +76,6 @@ class MainWindow(QtGui.QWidget):
 
         self.plotAlreadyThere = False
         self.currentPlotObj = None
-
         """
         XYZ Visualization
         """
@@ -120,8 +118,8 @@ class MainWindow(QtGui.QWidget):
                                    QtGui.QSizePolicy.Expanding)
 
         doge = QtGui.QLabel()
-        dogeImg = QtGui.QPixmap(str(
-            os.path.abspath(os.path.join("images", "dogeicon.png"))))
+        dogeImg = QtGui.QPixmap(
+            str(os.path.abspath(os.path.join("images", "dogeicon.png"))))
         dogeSmall = dogeImg.scaledToWidth(100)
         doge.setPixmap(dogeSmall)
         doge.setAlignment(QtCore.Qt.AlignCenter)
@@ -150,19 +148,20 @@ class MainWindow(QtGui.QWidget):
         self.xyzWidgets.setLayout(self.xyzWidgetLayout)
 
         # connections
-        submitButton.clicked.connect(lambda: xyz.changeViewAreas(
-            self.plotAlreadyThere, self.xPlaneLE,
-            self.yPlaneLE, self.zPlaneLE))
-        loadButton.clicked.connect(lambda: xyz.loadXYZFile(
-            self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel,
-            self.yPlaneLabel, self.zPlaneLabel))
+        submitButton.clicked.connect(
+            lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
+        )
 
-        self.xyzShapeCB.currentIndexChanged.connect(lambda: xyz.changeShape(
-            self.xyzShapeCB, self.transSlider))
+        loadButton.clicked.connect(
+            lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel)
+        )
 
-        self.viewAll.toggled.connect(lambda: xyz.viewAllAreas(
-            self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE))
+        self.xyzShapeCB.currentIndexChanged.connect(
+            lambda: xyz.changeShape(self.xyzShapeCB, self.transSlider))
 
+        self.viewAll.toggled.connect(
+            lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
+        )
         """
         PATH Visualization
         """
@@ -188,13 +187,14 @@ class MainWindow(QtGui.QWidget):
         self.pathWidgetLayout.addWidget(self.pathShapeCB)
         self.pathWidgets.setLayout(self.pathWidgetLayout)
 
-        self.loadPathButton.clicked.connect(lambda: path.loadPathFile(
-            self.plotWidget, self.pathChargeIdCB))
+        self.loadPathButton.clicked.connect(
+            lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))
+
         self.pathChargeIdCB.currentIndexChanged.connect(
             lambda: path.selectPathChargeID(self.pathChargeIdCB))
+
         self.pathShapeCB.currentIndexChanged.connect(
             lambda: path.changeShape(self.pathShapeCB))
-
         """
         PERC Visualization
         """

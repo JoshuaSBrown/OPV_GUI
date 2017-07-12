@@ -7,5 +7,9 @@ This is the git repository for the OPV GUI project.
     python 3DVisArea/MainWindows.py
 
 ## Todo
-* [ ] Separate GUI and backend to increase speed
+* [X] Separate GUI and backend to increase speed
+    * [X] ~~xyzViz~~
+    * [X] ~~pathViz~~
+    * [X] ~~percViz~~
+    * [X] ~~trapViz~~
 * [ ] More Documentation

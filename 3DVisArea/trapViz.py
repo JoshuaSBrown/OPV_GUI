@@ -8,25 +8,39 @@ import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
+from worker import Worker
+
 
 class trapViz(QtGui.QWidget):
+
+    mysignal = QtCore.pyqtSignal(list, bool)
+
     def __init__(self):
         super(trapViz, self).__init__()
 
     def loadTrapFile(self, trapChargeIdCB, plotWidget):
-
+        self.trapChargeIdCB = trapChargeIdCB
+        self.plotWidget = plotWidget
         trapFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Trap File', '.')
-        try:
-            with open(trapFileName) as trapFile:
-                trapData = trapFile.readlines()
-        except IOError:
-            return
+        self.worker = Worker(trapFileName, self.mysignal, ".trap")
+        self.worker.start()
+        self.mysignal.connect(self.printData)
+        # try:
+        #     with open(trapFileName) as trapFile:
+        #         trapData = trapFile.readlines()
+        # except IOError:
+        #     return
 
-        if not ".trap" in trapFileName:
-            QtGui.QMessageBox.about(self, "Error", "Not a Trap File")
-            return
+        # if not ".trap" in trapFileName:
+        #     QtGui.QMessageBox.about(self, "Error", "Not a Trap File")
+        #     return
 
-    	dataLen = len(trapData)
+    def printData(self, trapData, mybool):
+        if not mybool:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .xyz File or is currupted")
+            return
+        dataLen = len(trapData)
 
         self.pos = empty((dataLen, 3))
         self.size = empty((dataLen))
@@ -84,7 +98,6 @@ class trapViz(QtGui.QWidget):
             self.plotDic[k] = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
 
         idList.sort()
-        self.trapChargeIdCB = trapChargeIdCB
         self.trapChargeIdCB.setEnabled(True)
         self.trapChargeIdCB.addItems(["View All"])
         self.trapChargeIdCB.addItems(idList)
@@ -97,7 +110,6 @@ class trapViz(QtGui.QWidget):
         zMaxPos = int(maxPos[2])
 
 
-        self.plotWidget = plotWidget
 
         for k,v in self.plotDic.iteritems():
             self.plotWidget.addItem(self.plotDic[k])
