@@ -42,10 +42,10 @@ class xyzViz(QtGui.QWidget):
             for i in range(3, len(widgetItems)):
                 prevPlot.append(widgetItems[i])
 
-        # try:
-        #     plotWidget.removeItem(prevPlot)
-        #  catch:
-        #     pass
+#         try:
+#             plotWidget.removeItem(prevPlot)
+#         except:
+#             print "No older plots to remove"
 
         xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File',
                                                         '../Data')
@@ -54,8 +54,7 @@ class xyzViz(QtGui.QWidget):
         self.mysignal.connect(self.printData)
 
         if plotAlreadyThere:
-            for i in range(0, self.previousDataSize):
-                self.size[i] = 0
+            self.size = zeros(self.previousDataSize)
 
         # if ".xyz" not in xyzFileName:
         #     QtGui.QMessageBox.about(self, "Error", "Not a xyz File")
@@ -294,7 +293,8 @@ class xyzViz(QtGui.QWidget):
             minEnergy = min(energy)
             maxEnergy = max(energy)
             # self.normEnergy = map(lambda x:(x - minEnergy)/(maxEnergy - minEnergy), energy)
-            self.normEnergy = divide(add(energy, - minEnergy), subtract(maxEnergy, minEnergy))
+            self.normEnergy = divide(
+                add(energy, -minEnergy), subtract(maxEnergy, minEnergy))
             self.color = hot(self.normEnergy)
             maxPos = self.pos[self.previousDataSize - 1]
             self.xMaxPos = int(maxPos[0])
@@ -306,6 +306,7 @@ class xyzViz(QtGui.QWidget):
             self.plot = gl.GLScatterPlotItem(
                 pos=self.pos, size=self.size, color=self.color, pxMode=False)
             self.plotWidget.addItem(self.plot)
+            self.plotAlreadyThere = True
             plotAlreadyThere = True
 
 

@@ -149,28 +149,18 @@ class MainWindow(QtGui.QWidget):
 
         # connections
         submitButton.clicked.connect(
-            lambda: xyz.changeViewAreas(
-                self.plotAlreadyThere,
-                self.xPlaneLE,
-                self.yPlaneLE,
-                self.zPlaneLE)
+            lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
         )
 
         loadButton.clicked.connect(
-            lambda: xyz.loadXYZFile(
-                self.plotWidget,
-                self.plotAlreadyThere,
-                self.xPlaneLabel,
-                self.yPlaneLabel,
-                self.zPlaneLabel)
+            lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel)
         )
 
         self.xyzShapeCB.currentIndexChanged.connect(
             lambda: xyz.changeShape(self.xyzShapeCB, self.transSlider))
 
         self.viewAll.toggled.connect(
-            lambda: xyz.viewAllAreas(
-                self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
+            lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
         )
         """
         PATH Visualization
@@ -288,7 +278,7 @@ class MainWindow(QtGui.QWidget):
 def main():
 
     app = QtGui.QApplication(sys.argv)
-    ex = MainWindow() # NOQA
+    ex = MainWindow()  # NOQA
     sys.exit(app.exec_())
 
 
