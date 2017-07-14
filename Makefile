@@ -1,2 +1,2 @@
 target:
-	python 3DVisArea/MainWindow.py
+	python2 3DVisArea/MainWindow.py

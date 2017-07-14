@@ -6,7 +6,7 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
-from worker import Worker
+from worker import Worker, Slave
 
 # import itertools
 
@@ -14,7 +14,15 @@ from worker import Worker
 class xyzViz(QtGui.QWidget):
 
     mysignal = QtCore.pyqtSignal(list, bool)
-
+    slaves = QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
+    # slaves1 =  QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
+    # slaves2 =  QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
+    # slaves3 =  QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
+    # slv0 = None
+    # slv1 = None
+    # slv2 = None
+    # slv3 = None
+    slaveArr = []
     def __init__(self):
         super(xyzViz, self).__init__()
 
@@ -33,13 +41,13 @@ class xyzViz(QtGui.QWidget):
             for i in range(3, len(widgetItems)):
                 prevPlot.append(widgetItems[i])
 
-#         try:
-#             plotWidget.removeItem(prevPlot)
-#          catch:
-#             pass
+        # try:
+        #     plotWidget.removeItem(prevPlot)
+        #  catch:
+        #     pass
 
-        xyzFileName = QtGui.QFileDialog.getOpenFileName(
-            self, 'Load XYZ File', '../Data')
+        xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File',
+                                                        '../Data')
         self.worker = Worker(xyzFileName, self.mysignal, ".xyz")
         self.worker.start()
         self.mysignal.connect(self.printData)
@@ -63,47 +71,74 @@ class xyzViz(QtGui.QWidget):
             QtGui.QMessageBox.about(self, "Error",
                                     "Not a .xyz File or is currupted")
             return
+        del xyzData[:2]
+        dataLen = len(xyzData)
         self.xyzData = xyzData
         # All the data points
-        energy = []
-        del self.xyzData[:2]
-        dataLen = len(self.xyzData)
-
+        self.energy = zeros(dataLen)
+        self.normEnergy = self.energy[:]
         self.pos = empty((dataLen, 3))
-        self.size = empty((dataLen))
+        self.size = ones((dataLen))/2
         self.color = empty((dataLen, 4))
-
+        self.previousDataSize = dataLen
         self.coloristhere = False
+        self.slaves.connect(self.processData)
+        # self.slaves1.connect(self.processData)
+        # self.slaves2.connect(self.processData)
+        # self.slaves3.connect(self.processData)
+        numThreads = 10
+        step = dataLen/numThreads
+        self.num = 0
+        for i in range(1, numThreads):
+            temp = Slave(self.xyzData, self.energy, step*(i-1), step*i, self.pos, self.slaves)
+            temp.start()
+            self.slaveArr.append(temp)
+        final = Slave(self.xyzData, self.energy, step*(numThreads - 1), dataLen, self.pos, self.slaves)
+        final.start()
+        self.slaveArr.append(final)
+        # self.slv0 = Slave(self.xyzData, self.energy, step*0, step*1, self.pos, self.slaves)
+        # self.slv0.start()
+        # self.slv1 = Slave(self.xyzData, self.energy, step*1, step*2, self.pos, self.slaves1)
+        # self.slv1.start()
+        # self.slv2 = Slave(self.xyzData, self.energy, step*2, step*3, self.pos, self.slaves2)
+        # self.slv2.start()
+        # self.slv3 = Slave(self.xyzData, self.energy, step*3, dataLen, self.pos, self.slaves3)
+        # self.slv3.start()
 
-        for i, j in enumerate(self.xyzData):
-            self.xyzData[i] = self.xyzData[i].split('\t')
-            # print self.xyzData[i]
-            del self.xyzData[i][0]  # delete "C"
-            self.pos[i] = tuple(self.xyzData[i][0:3])
-            self.size[i] = .5
-            energy.append(self.xyzData[i][3])
 
-        maxPos = self.pos[dataLen - 1]
-        self.normEnergy = self.normalizeEnergy(energy)
 
-        for i, j in enumerate(self.normEnergy):
-            self.color[i] = hot(self.normEnergy[i])
-            self.coloristhere = True
+        # # p2 = Slave(self.xyzData, self.energy, step, step*2)
+        # =====================================================
+        # for i, j in enumerate(self.xyzData):
+        #     self.xyzData[i] = self.xyzData[i].split('\t')
+        #     # print self.xyzData[i]
+        #     del self.xyzData[i][0]  # delete "C"
+        #     self.pos[i] = tuple(self.xyzData[i][0:3])
+        #     self.energy[i] = self.xyzData[i][3]
+            # progress.setText(str(i) + "/" + str(dataLen))
+        # =====================================================
+
+        # maxPos = self.pos[dataLen - 1]
+        # self.normEnergy = self.normalizeEnergy(self.energy)
+
+        # for i, j in enumerate(self.normEnergy):
+        #     self.color[i] = hot(self.normEnergy[i])
+        #     self.coloristhere = True
 
         # insert surfaceArea code here if needed
-        self.xMaxPos = int(maxPos[0])
-        self.yMaxPos = int(maxPos[1])
-        self.zMaxPos = int(maxPos[2])
+        # self.xMaxPos = int(maxPos[0])
+        # self.yMaxPos = int(maxPos[1])
+        # self.zMaxPos = int(maxPos[2])
 
-        self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
-        self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
-        self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
+        # self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
+        # self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
+        # self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
 
-        self.plot = gl.GLScatterPlotItem(
-            pos=self.pos, size=self.size, color=self.color, pxMode=False)
-        self.plotWidget.addItem(self.plot)
-        plotAlreadyThere = True
-        self.previousDataSize = dataLen
+        # self.plot = gl.GLScatterPlotItem(
+        #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
+        # self.plotWidget.addItem(self.plot)
+        # plotAlreadyThere = True
+        # self.previousDataSize = dataLen
 
     def makeSurfaceArea(self):
 
@@ -172,26 +207,26 @@ class xyzViz(QtGui.QWidget):
 
             norm = (energy[i] - minEnergy) / (maxEnergy - minEnergy)
             normEnergy.append(norm)
-            #print norm
+            # print norm
 
         return normEnergy
 
     def cubeViz(self):
 
         verts = np.array([
-            [0, 0, 0],  #0
-            [0, 0, 1],  #1
-            [0, 1, 0],  #2
-            [0, 1, 1],  #3
-            [1, 0, 0],  #4
-            [1, 0, 1],  #5
-            [1, 1, 0],  #6
-            [1, 1, 1]  #7
+            [0, 0, 0],  # 0
+            [0, 0, 1],  # 1
+            [0, 1, 0],  # 2
+            [0, 1, 1],  # 3
+            [1, 0, 0],  # 4
+            [1, 0, 1],  # 5
+            [1, 1, 0],  # 6
+            [1, 1, 1]  # 7
         ])
 
-        faces = np.array([[0, 4, 6], [0, 6, 2], [1, 5, 7], [1, 7, 3],
-                          [2, 6, 3], [3, 7, 6], [0, 4, 1], [1, 5, 4],
-                          [4, 5, 7], [4, 6, 7], [0, 1, 3], [0, 2, 3]])
+        faces = np.array([[0, 4, 6], [0, 6, 2], [1, 5, 7], [1, 7, 3], [2, 6, 3],
+                          [3, 7, 6], [0, 4, 1], [1, 5, 4], [4, 5, 7], [4, 6, 7],
+                          [0, 1, 3], [0, 2, 3]])
 
         faceColors = np.array(
             [[1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3],
@@ -200,13 +235,11 @@ class xyzViz(QtGui.QWidget):
 
         self.cube = verts[faces]
 
-        print self.xyzData
-
     def changeShape(self, shapeCB, transSlider):
 
         if shapeCB.currentText() == "Square":
             transSlider.blockSignals(True)
-            #self.plot.setGLOptions('opaque')
+            # self.plot.setGLOptions('opaque')
             self.cubeViz()
 
         else:
@@ -305,6 +338,34 @@ class xyzViz(QtGui.QWidget):
             planeArea.sort()
 
         return planeArea
+
+    def processData(self, xyzData, energy, pos, begin, end):
+        # assert isinstance(xyzData, list)
+        # assert isinstance(energy, list)
+        # FIXME This is all single threaded so this will take a long time... or
+        # will it? How do I know exactly?
+        self.xyzData[begin:end] = xyzData[begin:end]
+        self.energy[begin:end] = energy[begin:end]
+        self.pos[begin:end] = pos[begin:end]
+        self.normEnergy[begin:end] = self.normalizeEnergy(self.energy[begin:end])
+
+        for i in range(begin, end):
+            self.color[i] = hot(self.normEnergy[i])
+            self.coloristhere = True
+        self.num += 1
+        print self.num, ":", end, "vs", self.previousDataSize
+        if self.num == 4:
+            maxPos = self.pos[self.previousDataSize - 1]
+            self.xMaxPos = int(maxPos[0])
+            self.yMaxPos = int(maxPos[1])
+            self.zMaxPos = int(maxPos[2])
+            self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
+            self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
+            self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
+            self.plot = gl.GLScatterPlotItem(
+                pos=self.pos, size=self.size, color=self.color, pxMode=False)
+            self.plotWidget.addItem(self.plot)
+            plotAlreadyThere = True
 
 
 def main():
