@@ -1,5 +1,6 @@
 from PyQt4 import QtCore
-
+from matplotlib.cm import hot
+from numpy import array
 
 class Worker(QtCore.QThread):
     def __init__(self, file, sig, fType):
@@ -48,3 +49,6 @@ class Slave(QtCore.QThread):
             # progress.setText(str(i) + "/" + str(dataLen))
         print "Ended", self.begin
         self.sig.emit(self.xyzData, self.energy, self.pos, self.begin, self.end)
+
+
+

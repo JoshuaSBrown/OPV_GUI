@@ -23,6 +23,7 @@ class xyzViz(QtGui.QWidget):
     # slv2 = None
     # slv3 = None
     slaveArr = []
+
     def __init__(self):
         super(xyzViz, self).__init__()
 
@@ -78,7 +79,7 @@ class xyzViz(QtGui.QWidget):
         self.energy = zeros(dataLen)
         self.normEnergy = self.energy[:]
         self.pos = empty((dataLen, 3))
-        self.size = ones((dataLen))/2
+        self.size = ones((dataLen)) / 2
         self.color = empty((dataLen, 4))
         self.previousDataSize = dataLen
         self.coloristhere = False
@@ -86,14 +87,18 @@ class xyzViz(QtGui.QWidget):
         # self.slaves1.connect(self.processData)
         # self.slaves2.connect(self.processData)
         # self.slaves3.connect(self.processData)
-        numThreads = 10
-        step = dataLen/numThreads
+        numThreads = 30
+        self.coloristhere = True
+        self.numThreads = numThreads
+        step = dataLen / numThreads
         self.num = 0
         for i in range(1, numThreads):
-            temp = Slave(self.xyzData, self.energy, step*(i-1), step*i, self.pos, self.slaves)
+            temp = Slave(self.xyzData, self.energy,
+                         step * (i - 1), step * i, self.pos, self.slaves)
             temp.start()
             self.slaveArr.append(temp)
-        final = Slave(self.xyzData, self.energy, step*(numThreads - 1), dataLen, self.pos, self.slaves)
+        final = Slave(self.xyzData, self.energy,
+                      step * (numThreads - 1), dataLen, self.pos, self.slaves)
         final.start()
         self.slaveArr.append(final)
         # self.slv0 = Slave(self.xyzData, self.energy, step*0, step*1, self.pos, self.slaves)
@@ -105,8 +110,6 @@ class xyzViz(QtGui.QWidget):
         # self.slv3 = Slave(self.xyzData, self.energy, step*3, dataLen, self.pos, self.slaves3)
         # self.slv3.start()
 
-
-
         # # p2 = Slave(self.xyzData, self.energy, step, step*2)
         # =====================================================
         # for i, j in enumerate(self.xyzData):
@@ -115,30 +118,6 @@ class xyzViz(QtGui.QWidget):
         #     del self.xyzData[i][0]  # delete "C"
         #     self.pos[i] = tuple(self.xyzData[i][0:3])
         #     self.energy[i] = self.xyzData[i][3]
-            # progress.setText(str(i) + "/" + str(dataLen))
-        # =====================================================
-
-        # maxPos = self.pos[dataLen - 1]
-        # self.normEnergy = self.normalizeEnergy(self.energy)
-
-        # for i, j in enumerate(self.normEnergy):
-        #     self.color[i] = hot(self.normEnergy[i])
-        #     self.coloristhere = True
-
-        # insert surfaceArea code here if needed
-        # self.xMaxPos = int(maxPos[0])
-        # self.yMaxPos = int(maxPos[1])
-        # self.zMaxPos = int(maxPos[2])
-
-        # self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
-        # self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
-        # self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
-
-        # self.plot = gl.GLScatterPlotItem(
-        #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
-        # self.plotWidget.addItem(self.plot)
-        # plotAlreadyThere = True
-        # self.previousDataSize = dataLen
 
     def makeSurfaceArea(self):
 
@@ -195,45 +174,6 @@ class xyzViz(QtGui.QWidget):
             self.xPlaneLE.setEnabled(True)
             self.yPlaneLE.setEnabled(True)
             self.zPlaneLE.setEnabled(True)
-
-    def normalizeEnergy(self, energy):
-
-        normEnergy = []
-        energy = map(float, energy)
-        minEnergy = min(energy)
-        maxEnergy = max(energy)
-
-        for i in range(0, len(energy)):
-
-            norm = (energy[i] - minEnergy) / (maxEnergy - minEnergy)
-            normEnergy.append(norm)
-            # print norm
-
-        return normEnergy
-
-    def cubeViz(self):
-
-        verts = np.array([
-            [0, 0, 0],  # 0
-            [0, 0, 1],  # 1
-            [0, 1, 0],  # 2
-            [0, 1, 1],  # 3
-            [1, 0, 0],  # 4
-            [1, 0, 1],  # 5
-            [1, 1, 0],  # 6
-            [1, 1, 1]  # 7
-        ])
-
-        faces = np.array([[0, 4, 6], [0, 6, 2], [1, 5, 7], [1, 7, 3], [2, 6, 3],
-                          [3, 7, 6], [0, 4, 1], [1, 5, 4], [4, 5, 7], [4, 6, 7],
-                          [0, 1, 3], [0, 2, 3]])
-
-        faceColors = np.array(
-            [[1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3],
-             [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3],
-             [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3]])
-
-        self.cube = verts[faces]
 
     def changeShape(self, shapeCB, transSlider):
 
@@ -342,19 +282,20 @@ class xyzViz(QtGui.QWidget):
     def processData(self, xyzData, energy, pos, begin, end):
         # assert isinstance(xyzData, list)
         # assert isinstance(energy, list)
-        # FIXME This is all single threaded so this will take a long time... or
-        # will it? How do I know exactly?
         self.xyzData[begin:end] = xyzData[begin:end]
         self.energy[begin:end] = energy[begin:end]
         self.pos[begin:end] = pos[begin:end]
-        self.normEnergy[begin:end] = self.normalizeEnergy(self.energy[begin:end])
 
-        for i in range(begin, end):
-            self.color[i] = hot(self.normEnergy[i])
-            self.coloristhere = True
         self.num += 1
         print self.num, ":", end, "vs", self.previousDataSize
-        if self.num == 4:
+        if self.num == self.numThreads:
+            energy = map(float, self.energy)
+
+            minEnergy = min(energy)
+            maxEnergy = max(energy)
+            # self.normEnergy = map(lambda x:(x - minEnergy)/(maxEnergy - minEnergy), energy)
+            self.normEnergy = divide(add(energy, - minEnergy), subtract(maxEnergy, minEnergy))
+            self.color = hot(self.normEnergy)
             maxPos = self.pos[self.previousDataSize - 1]
             self.xMaxPos = int(maxPos[0])
             self.yMaxPos = int(maxPos[1])
@@ -366,13 +307,6 @@ class xyzViz(QtGui.QWidget):
                 pos=self.pos, size=self.size, color=self.color, pxMode=False)
             self.plotWidget.addItem(self.plot)
             plotAlreadyThere = True
-
-
-def main():
-
-    app = QtGui.QApplication(sys.argv)
-    ex = MainWindow()
-    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
