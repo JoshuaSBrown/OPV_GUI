@@ -5,19 +5,19 @@ from PyQt4 import QtGui, QtCore
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import numpy as np
-import matplotlib.cm 
+import matplotlib.cm
 
 class MainWindow(QtGui.QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
-        
+
         layout = QtGui.QVBoxLayout()
-        
+
         self.view = gl.GLViewWidget()
         self.view.setFixedSize(600, 600)
         self.view.setCameraPosition(distance=10000)
         self.view.setCameraPosition(azimuth=180)
-        
+
         grid = gl.GLGridItem()
         grid.scale(1,1,1)
         self.view.addItem(grid)
@@ -28,7 +28,7 @@ class MainWindow(QtGui.QWidget):
         self.progress = QtGui.QProgressBar()
         self.progress.setRange(0, 100)
         self.progress.setTextVisible(True)
-        
+
         layout.addWidget(loadButton)
         layout.addWidget(self.view)
         layout.addWidget(self.progress)
@@ -77,19 +77,19 @@ class MainWindow(QtGui.QWidget):
         ])
 
         self.cube = verts[faces]
-        
+
         self.setLayout(layout)
         self.show()
-        
+
     def loadData(self):
-    
+
         self.fileName = QtGui.QFileDialog.getOpenFileName(self, 'Load File', '../Data')
         try:
             with open(self.fileName) as file:
                 xyzData = file.readlines()
         except IOError:
             return
-        
+
         #fileName = "/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/Data/DataT300Vx0.3Vy0Vz0R1Energy.xyz"
         #fileName = "/Users/soorinpark/Downloads/DataT300Vx5Vy0Vz0R1Energy.xyz"
         #fileName = "/Users/soorinpark/Documents/School/ShaheenGroup/OPV_GUI/Data/DataT300Vx0.3Vy0Vz0R1.perc"
@@ -107,46 +107,46 @@ class MainWindow(QtGui.QWidget):
         xyz = np.empty([0,0], float)
         colors = np.zeros(shape=(len(xyzData),4))
         energy = []
-        
+
         maxPos = xyzData[len(xyzData) - 1].split('\t')
 
         xMax = float(maxPos[1])
         yMax = float(maxPos[2])
         zMax = float(maxPos[3])
-        
+
         for i, j in enumerate(xyzData):
-            
+
             xyzData[i] = xyzData[i].split('\t')
             del xyzData[i][0] # delete "C"
-            
+
             x = float(xyzData[i][0])
             y = float(xyzData[i][1])
             z = float(xyzData[i][2])
-            
+
             if xyz.size == 0:
                 xyz = np.array([x, y, z])
-            
+
             """ This is for all data
             else:
                 xyz = np.vstack((xyz, [x, y, z]))
             """
-            
+
             # This is for surface Area
             if (x == 0 or x == xMax or y == 0 or y == yMax or z == 0 or z == zMax):
                 xyz = np.vstack((xyz, [x, y, z]))
-            
+
             #self.progress.setValue(self.progress.value() + 1)
             energy.append(xyzData[i][3])
-        
-        
-            
+
+
+
         """
             xyz[i][0] = xyzData[i][0]
             xyz[i][1] = xyzData[i][1]
             xyz[i][2] = xyzData[i][2]
             energy.append(xyzData[i][4])
             """
-    
+
         normEnergy = self.normalizeEnergy(energy)
         for i in range(0, len(normEnergy)):
             colors[i] = matplotlib.cm.hot(normEnergy[i])
@@ -193,21 +193,21 @@ class MainWindow(QtGui.QWidget):
 
         m1.setGLOptions('opaque')
         self.view.addItem(m1)
-    
-        
+
+
     def normalizeEnergy(self, energy):
-        
+
         normEnergy = []
         energy = map(float, energy)
         minEnergy = min(energy)
         maxEnergy = max(energy)
 
         for i in range(0, len(energy)):
-            
+
             norm = (energy[i] - minEnergy) / (maxEnergy - minEnergy)
             normEnergy.append(norm)
             #print norm
-        
+
         return normEnergy
 
 def main():

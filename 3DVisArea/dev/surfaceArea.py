@@ -1,5 +1,5 @@
 #Just the surface area
-        
+
         for i, j in enumerate(xyzData):
 
             xyzData[i] = xyzData[i].split('\t')
@@ -18,29 +18,29 @@
 
             if float(xyzData[i][2]) >= zMax:
                 zMax = float(xyzData[i][2])
-       
+
 
         # plot x-plane
         indexX1 = 0
         for x in range(0, int(xMax) + 1):
             for y in range(0, int(yMax) + 1):
-                
+
                 pos[indexX1] = (x, y, 0)
                 size[indexX1] = .5
                 color[indexX1] = (0.0, 1.0, 0.0, 0.5)
                 #print indexX1, pos[indexX1]
                 indexX1 = indexX1 + 1
-        
+
         indexX2 = indexX1
         for x in range(0, int(xMax) + 1):
             for y in range(0, int(yMax) + 1):
-                
+
                 pos[indexX2] = (x, y, zMax)
                 size[indexX2] = .5
                 color[indexX2] = (0.0, 1.0, 0.0, 0.5)
                 #print indexX2, pos[indexX2]
                 indexX2 = indexX2 + 1
-        
+
 
         # plot y-plane
         indexY1 = indexX2
@@ -88,7 +88,7 @@
         print indexZ2
 
 
-    
+
         print xMax, yMax, zMax
         for x in range(0, int(xMax) + 1):
             for y in range(0, int(yMax) + 1):
