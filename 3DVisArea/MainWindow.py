@@ -19,6 +19,7 @@ import xyzViz
 import pathViz
 import percViz
 import trapViz
+from worker import clearPlot
 
 
 class MainWindow(QtGui.QWidget):
@@ -172,6 +173,7 @@ class MainWindow(QtGui.QWidget):
 
         self.pathChargeIdLabel = QtGui.QLabel("Charge ID")
         self.pathChargeIdCB = QtGui.QComboBox()
+        self.clearBox = QtGui.QPushButton("Clear Graph")
         self.pathChargeIdCB.setEnabled(False)
 
         pathShapeLabel = QtGui.QLabel("Shape")
@@ -186,6 +188,11 @@ class MainWindow(QtGui.QWidget):
         self.pathWidgetLayout.addWidget(pathShapeLabel)
         self.pathWidgetLayout.addWidget(self.pathShapeCB)
         self.pathWidgets.setLayout(self.pathWidgetLayout)
+        self.pathWidgetLayout.addWidget(self.clearBox)
+
+        self.clearBox.clicked.connect(
+            lambda: clearPlot(self.plotWidget, self.plotAlreadyThere, self.currentPlotObj)
+        )
 
         self.loadPathButton.clicked.connect(
             lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))

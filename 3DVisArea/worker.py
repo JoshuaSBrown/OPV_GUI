@@ -1,6 +1,8 @@
 from PyQt4 import QtCore
 from matplotlib.cm import hot
 from numpy import array
+import pyqtgraph.opengl as gl
+
 
 class Worker(QtCore.QThread):
     def __init__(self, file, sig, fType):
@@ -48,7 +50,13 @@ class Slave(QtCore.QThread):
             self.energy[i] = self.xyzData[i][3]
             # progress.setText(str(i) + "/" + str(dataLen))
         print "Ended", self.begin
-        self.sig.emit(self.xyzData, self.energy, self.pos, self.begin, self.end)
+        self.sig.emit(self.xyzData, self.energy, self.pos, self.begin,
+                      self.end)
 
 
-
+def clearPlot(plotWidget, plotAlreadyThere, currentPlotObj):
+    items = plotWidget.items
+    for i in range(3, len(items)):
+        plotWidget.removeItem(items[i])
+    plotAlreadyThere = False
+    currentPlotObj = None
