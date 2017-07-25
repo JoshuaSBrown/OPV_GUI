@@ -19,7 +19,6 @@ import xyzViz
 import pathViz
 import percViz
 import trapViz
-from worker import clearPlot
 
 
 class MainWindow(QtGui.QWidget):
@@ -190,9 +189,10 @@ class MainWindow(QtGui.QWidget):
         self.pathWidgets.setLayout(self.pathWidgetLayout)
         self.pathWidgetLayout.addWidget(self.clearBox)
 
-        self.clearBox.clicked.connect(
-            lambda: clearPlot(self.plotWidget, self.plotAlreadyThere, self.currentPlotObj)
-        )
+        # FIXME This does not clear the color
+        # self.clearBox.clicked.connect(
+        #     lambda: clearPlot(self.plotWidget, self.plotAlreadyThere, self.currentPlotObj)
+        # )
 
         self.loadPathButton.clicked.connect(
             lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))

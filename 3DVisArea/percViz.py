@@ -125,13 +125,13 @@ class percViz(QtGui.QWidget):
             for k, v in self.plotDic.iteritems():
                 try:
                     plotWidget.removeItem(self.plotDic[k])
-                    print "removed: ", k, self.plotDic[k]
+                    print("removed: ", k, self.plotDic[k])
                 except ValueError:
                     pass
 
         for k, v in self.plotDic.iteritems():
             if k == chargeID:
-                print "added: ", k, self.plotDic[k]
+                print("added:", k, self.plotDic[k])
                 plotWidget.addItem(self.plotDic[k])
         """
 

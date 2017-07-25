@@ -7,6 +7,7 @@ import pyqtgraph.opengl as gl
 import numpy as np
 import matplotlib.cm
 
+
 class MainWindow(QtGui.QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -19,7 +20,7 @@ class MainWindow(QtGui.QWidget):
         self.view.setCameraPosition(azimuth=180)
 
         grid = gl.GLGridItem()
-        grid.scale(1,1,1)
+        grid.scale(1, 1, 1)
         self.view.addItem(grid)
 
         loadButton = QtGui.QPushButton("Load")
@@ -35,46 +36,24 @@ class MainWindow(QtGui.QWidget):
 
         # verts and faces to create a cube
         verts = np.array([
-            [0, 0, 0], #0
-            [0, 0, 1], #1
-            [0, 1, 0], #2
-            [0, 1, 1], #3
-            [1, 0, 0], #4
-            [1, 0, 1], #5
-            [1, 1, 0], #6
-            [1, 1, 1] #7
-            ])
-
-        faces = np.array([
-            [0, 4, 6],
-            [0, 6, 2],
-            [1, 5, 7],
-            [1, 7, 3],
-            [2, 6, 3],
-            [3, 7, 6],
-            [0, 4, 1],
-            [1, 5, 4],
-            [4, 5, 7],
-            [4, 6, 7],
-            [0, 1, 3],
-            [0, 2, 3]
-            ])
-
-        faceColors = np.array([
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3],
-            [1, 0, 0, 0.3]
-
+            [0, 0, 0],  #0
+            [0, 0, 1],  #1
+            [0, 1, 0],  #2
+            [0, 1, 1],  #3
+            [1, 0, 0],  #4
+            [1, 0, 1],  #5
+            [1, 1, 0],  #6
+            [1, 1, 1]  #7
         ])
+
+        faces = np.array([[0, 4, 6], [0, 6, 2], [1, 5, 7], [1, 7, 3],
+                          [2, 6, 3], [3, 7, 6], [0, 4, 1], [1, 5, 4],
+                          [4, 5, 7], [4, 6, 7], [0, 1, 3], [0, 2, 3]])
+
+        faceColors = np.array(
+            [[1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3],
+             [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3],
+             [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3], [1, 0, 0, 0.3]])
 
         self.cube = verts[faces]
 
@@ -83,7 +62,8 @@ class MainWindow(QtGui.QWidget):
 
     def loadData(self):
 
-        self.fileName = QtGui.QFileDialog.getOpenFileName(self, 'Load File', '../Data')
+        self.fileName = QtGui.QFileDialog.getOpenFileName(
+            self, 'Load File', '../Data')
         try:
             with open(self.fileName) as file:
                 xyzData = file.readlines()
@@ -104,8 +84,8 @@ class MainWindow(QtGui.QWidget):
 
         #xyz = np.empty((len(xyzData), 3), float)
         #xyz = np.empty((0, 3), float)
-        xyz = np.empty([0,0], float)
-        colors = np.zeros(shape=(len(xyzData),4))
+        xyz = np.empty([0, 0], float)
+        colors = np.zeros(shape=(len(xyzData), 4))
         energy = []
 
         maxPos = xyzData[len(xyzData) - 1].split('\t')
@@ -117,7 +97,7 @@ class MainWindow(QtGui.QWidget):
         for i, j in enumerate(xyzData):
 
             xyzData[i] = xyzData[i].split('\t')
-            del xyzData[i][0] # delete "C"
+            del xyzData[i][0]  # delete "C"
 
             x = float(xyzData[i][0])
             y = float(xyzData[i][1])
@@ -125,21 +105,18 @@ class MainWindow(QtGui.QWidget):
 
             if xyz.size == 0:
                 xyz = np.array([x, y, z])
-
             """ This is for all data
             else:
                 xyz = np.vstack((xyz, [x, y, z]))
             """
 
             # This is for surface Area
-            if (x == 0 or x == xMax or y == 0 or y == yMax or z == 0 or z == zMax):
+            if (x == 0 or x == xMax or y == 0 or y == yMax or z == 0 or
+                    z == zMax):
                 xyz = np.vstack((xyz, [x, y, z]))
 
             #self.progress.setValue(self.progress.value() + 1)
             energy.append(xyzData[i][3])
-
-
-
         """
             xyz[i][0] = xyzData[i][0]
             xyz[i][1] = xyzData[i][1]
@@ -151,7 +128,6 @@ class MainWindow(QtGui.QWidget):
         for i in range(0, len(normEnergy)):
             colors[i] = matplotlib.cm.hot(normEnergy[i])
             #self.progress.setValue(self.progress.value() + 1)
-
         """
         # data that contains [x, y, z, color]
         data = [[0, 0, 0, .5], [0, 0, 1, .25]]
@@ -170,13 +146,11 @@ class MainWindow(QtGui.QWidget):
 
         """
 
-
         colors = colors.repeat(36, axis=0)
         self.cube = np.tile(self.cube, (xyz.shape[0], 1, 1))
-        xyz = xyz.repeat(36, axis=0).reshape(self.cube.shape[0],3,3)
+        xyz = xyz.repeat(36, axis=0).reshape(self.cube.shape[0], 3, 3)
 
         final = self.cube + xyz
-
         """
         print len(final), len(colors)
         for i in range(0, len(final)):
@@ -186,14 +160,17 @@ class MainWindow(QtGui.QWidget):
                 print "----------------------------------\n"
         """
 
-        print final.size, colors.size
+        print(final.size, colors.size)
 
-        m1 = gl.GLMeshItem(vertexes=final, faceColors=colors, smooth=False, computeNormals=False)
+        m1 = gl.GLMeshItem(
+            vertexes=final,
+            faceColors=colors,
+            smooth=False,
+            computeNormals=False)
         #self.progress.setValue(self.progress.value() + 1)
 
         m1.setGLOptions('opaque')
         self.view.addItem(m1)
-
 
     def normalizeEnergy(self, energy):
 
@@ -210,11 +187,13 @@ class MainWindow(QtGui.QWidget):
 
         return normEnergy
 
+
 def main():
 
     app = QtGui.QApplication(sys.argv)
     ex = MainWindow()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()

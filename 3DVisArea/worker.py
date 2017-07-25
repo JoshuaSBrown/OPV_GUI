@@ -1,7 +1,4 @@
 from PyQt4 import QtCore
-from matplotlib.cm import hot
-from numpy import array
-import pyqtgraph.opengl as gl
 
 
 class Worker(QtCore.QThread):
@@ -19,9 +16,7 @@ class Worker(QtCore.QThread):
 
         try:
             with open(self.file) as xyzFile:
-                print "Started reading", self.file
                 xyzData = xyzFile.readlines()
-                print "Finished reading", self.file
         except IOError:
             self.sig.emit(xyzData, False)
             return
@@ -41,7 +36,6 @@ class Slave(QtCore.QThread):
         self.sig = sig
 
     def run(self):
-        print "Started", self.begin
         for i in range(self.begin, self.end):
             self.xyzData[i] = self.xyzData[i].split('\t')
             # print self.xyzData[i]
@@ -49,14 +43,5 @@ class Slave(QtCore.QThread):
             self.pos[i] = tuple(self.xyzData[i][0:3])
             self.energy[i] = self.xyzData[i][3]
             # progress.setText(str(i) + "/" + str(dataLen))
-        print "Ended", self.begin
         self.sig.emit(self.xyzData, self.energy, self.pos, self.begin,
                       self.end)
-
-
-def clearPlot(plotWidget, plotAlreadyThere, currentPlotObj):
-    items = plotWidget.items
-    for i in range(3, len(items)):
-        plotWidget.removeItem(items[i])
-    plotAlreadyThere = False
-    currentPlotObj = None
