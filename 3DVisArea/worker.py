@@ -10,10 +10,6 @@ class Worker(QtCore.QThread):
 
     def run(self):
         xyzData = list()
-        if self.fType not in self.file:
-            self.sig.emit(xyzData, False)
-            return
-
         try:
             with open(self.file) as xyzFile:
                 xyzData = xyzFile.readlines()
@@ -38,6 +34,7 @@ class Slave(QtCore.QThread):
     def run(self):
         for i in range(self.begin, self.end):
             self.xyzData[i] = self.xyzData[i].split('\t')
+            # self.xyzData[i] = self.xyzData[i].split('\t')
             # print self.xyzData[i]
             del self.xyzData[i][0]  # delete "C"
             self.pos[i] = tuple(self.xyzData[i][0:3])
@@ -45,3 +42,8 @@ class Slave(QtCore.QThread):
             # progress.setText(str(i) + "/" + str(dataLen))
         self.sig.emit(self.xyzData, self.energy, self.pos, self.begin,
                       self.end)
+
+def clearBox(plotWidget):
+    items = plotWidget.items
+    for i in range(3, len(items)):
+        plotWidget.removeItem(items[i])

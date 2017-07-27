@@ -3,3 +3,7 @@
 Data/*
 tags
 *.pyc
+TAGS
+GTAGS
+GPATH
+GRTAGS

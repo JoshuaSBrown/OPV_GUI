@@ -10,7 +10,7 @@ from matplotlib.cm import *
 import itertools
 #import MainWindow
 from MainWindow import *
-from worker import Worker
+from worker import Worker, clearBox
 
 
 class percViz(QtGui.QWidget):
@@ -22,10 +22,18 @@ class percViz(QtGui.QWidget):
         # main = MainWindow.MainWindow()
 
     def loadPercFile(self, percChargeIdCB, plotWidget):
+
+        clearBox(plotWidget)
+        self.__init__()
+
         self.plotWidget = plotWidget
         self.percChargeIdCB = percChargeIdCB
         percFileName = QtGui.QFileDialog.getOpenFileName(
             self, 'Load Perc File', '.')
+        if ".perc" not in percFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .perc File or is currupted")
+            return
 
         self.worker = Worker(percFileName, self.mysignal, ".perc")
         self.worker.start()

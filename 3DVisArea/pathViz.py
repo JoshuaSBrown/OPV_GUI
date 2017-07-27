@@ -7,7 +7,7 @@ import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
-from worker import Worker
+from worker import Worker, clearBox
 
 
 class pathViz(QtGui.QWidget):
@@ -21,6 +21,8 @@ class pathViz(QtGui.QWidget):
 
     def loadPathFile(self, plotWidget, chargeIdCB):
 
+        clearBox(plotWidget)
+        self.__init__()
         self.plotWidget = plotWidget
         widgetItems = self.plotWidget.items
         prevPlot = []
@@ -39,6 +41,11 @@ class pathViz(QtGui.QWidget):
         self.chargeIdCB = chargeIdCB
         pathFileName = QtGui.QFileDialog.getOpenFileName(
             self, 'Load Path File', '../Data')
+
+        if ".path" not in pathFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .path File or is currupted")
+            return
 
         self.worker = Worker(pathFileName, self.mysignal, ".path")
         self.worker.start()

@@ -8,7 +8,7 @@ import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
-from worker import Worker
+from worker import Worker, clearBox
 
 
 class trapViz(QtGui.QWidget):
@@ -19,10 +19,18 @@ class trapViz(QtGui.QWidget):
         super(trapViz, self).__init__()
 
     def loadTrapFile(self, trapChargeIdCB, plotWidget):
+
+        clearBox(plotWidget)
+        self.__init__()
         self.trapChargeIdCB = trapChargeIdCB
         self.plotWidget = plotWidget
         trapFileName = QtGui.QFileDialog.getOpenFileName(
             self, 'Load Trap File', '.')
+        if ".trap" not in trapFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .trap File or is currupted")
+            return
+
         self.worker = Worker(trapFileName, self.mysignal, ".trap")
         self.worker.start()
         self.mysignal.connect(self.printData)

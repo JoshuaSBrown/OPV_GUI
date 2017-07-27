@@ -6,7 +6,7 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
-from worker import Worker, Slave
+from worker import Worker, Slave, clearBox
 
 # import itertools
 
@@ -22,12 +22,16 @@ class xyzViz(QtGui.QWidget):
 
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel,
                     yPlaneLabel, zPlaneLabel):
+        clearBox(plotWidget)
+        self.__init__()
         self.plotWidget = plotWidget
         self.xPlaneLabel = xPlaneLabel
         self.yPlaneLabel = yPlaneLabel
         self.zPlaneLabel = zPlaneLabel
         widgetItems = plotWidget.items
         prevPlot = []
+        self.color = []
+        # self.xyzData = []
 
         if len(widgetItems) > 3:
             for i in range(3, len(widgetItems)):
@@ -41,6 +45,12 @@ class xyzViz(QtGui.QWidget):
 
         xyzFileName = QtGui.QFileDialog.getOpenFileName(
             self, 'Load XYZ File', '../Data')
+
+        if ".xyz" not in xyzFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .xyz File or is currupted")
+            return
+
         self.worker = Worker(xyzFileName, self.mysignal, ".xyz")
         self.worker.start()
         self.mysignal.connect(self.printData)
@@ -54,8 +64,7 @@ class xyzViz(QtGui.QWidget):
                                     "Not a .xyz File or is currupted")
             return
         del xyzData[:2]
-        self.dataLen += len(xyzData)
-        dataLen = self.dataLen
+        dataLen = len(xyzData)
         self.xyzData = xyzData
         # All the data points
         self.energy = zeros(dataLen)
@@ -66,10 +75,7 @@ class xyzViz(QtGui.QWidget):
         self.previousDataSize = dataLen
         self.coloristhere = False
         self.slaves.connect(self.processData)
-        # self.slaves1.connect(self.processData)
-        # self.slaves2.connect(self.processData)
-        # self.slaves3.connect(self.processData)
-        numThreads = 15
+        numThreads = 10
         self.coloristhere = True
         self.numThreads = numThreads
         step = int(dataLen / numThreads)
@@ -199,9 +205,9 @@ class xyzViz(QtGui.QWidget):
                 for y in range(0, len(yPlaneArea)):
                     for z in range(0, len(zPlaneArea)):
                         self.size[i] = 0
-                        if ((self.pos[i][0] == xPlaneArea[x]) and
-                            (self.pos[i][1] == yPlaneArea[y]) and
-                            (self.pos[i][2] == zPlaneArea[z])):
+                        if ((self.pos[i][0] == xPlaneArea[x])
+                                and (self.pos[i][1] == yPlaneArea[y])
+                                and (self.pos[i][2] == zPlaneArea[z])):
                             visualizeThese.append(i)
 
         for j in range(0, len(visualizeThese)):
@@ -261,10 +267,4 @@ class xyzViz(QtGui.QWidget):
             self.plot = gl.GLScatterPlotItem(
                 pos=self.pos, size=self.size, color=self.color, pxMode=False)
             self.plotWidget.addItem(self.plot)
-            # Fixme: lol
             self.plotAlreadyThere = True
-            plotAlreadyThere = True
-
-
-if __name__ == '__main__':
-    main()
