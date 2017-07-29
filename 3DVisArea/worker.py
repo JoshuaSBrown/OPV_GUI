@@ -44,6 +44,6 @@ class Slave(QtCore.QThread):
                       self.end)
 
 def clearBox(plotWidget):
-    items = plotWidget.items
-    for i in range(3, len(items)):
-        plotWidget.removeItem(items[i])
+    print("The plotWidget has", len(plotWidget.items), "items when it should have 3")
+    for i in range(len(plotWidget.items) - 1, 2, -1):
+        plotWidget.removeItem(plotWidget.items[i])

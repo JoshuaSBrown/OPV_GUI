@@ -91,7 +91,7 @@ class percViz(QtGui.QWidget):
             else:
                 self.percDataDic[currentKey].append(temp)
 
-        for k, v in self.percDataDic.iteritems():
+        for k, v in iter(self.percDataDic.items()):
 
             dataLen = len(v)
 
@@ -120,7 +120,7 @@ class percViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-        for k, v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
@@ -137,7 +137,7 @@ class percViz(QtGui.QWidget):
                 except ValueError:
                     pass
 
-        for k, v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             if k == chargeID:
                 print("added:", k, self.plotDic[k])
                 plotWidget.addItem(self.plotDic[k])

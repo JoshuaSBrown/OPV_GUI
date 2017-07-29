@@ -19,7 +19,6 @@ class trapViz(QtGui.QWidget):
         super(trapViz, self).__init__()
 
     def loadTrapFile(self, trapChargeIdCB, plotWidget):
-
         clearBox(plotWidget)
         self.__init__()
         self.trapChargeIdCB = trapChargeIdCB
@@ -34,15 +33,6 @@ class trapViz(QtGui.QWidget):
         self.worker = Worker(trapFileName, self.mysignal, ".trap")
         self.worker.start()
         self.mysignal.connect(self.printData)
-        # try:
-        #     with open(trapFileName) as trapFile:
-        #         trapData = trapFile.readlines()
-        # except IOError:
-        #     return
-
-        # if not ".trap" in trapFileName:
-        #     QtGui.QMessageBox.about(self, "Error", "Not a Trap File")
-        #     return
 
     def printData(self, trapData, mybool):
         if not mybool:
@@ -86,7 +76,7 @@ class trapViz(QtGui.QWidget):
             else:
                 self.trapDataDic[currentKey].append(temp)
 
-        for k, v in self.trapDataDic.iteritems():
+        for k, v in iter(self.trapDataDic.items()):
 
             dataLen = len(v)
 
@@ -115,7 +105,7 @@ class trapViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-        for k, v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
@@ -132,7 +122,7 @@ class trapViz(QtGui.QWidget):
                 except ValueError:
                     pass
 
-        for k, v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             if k == chargeID:
                 print("added: ", k, self.plotDic[k])
                 plotWidget.addItem(self.plotDic[k])
