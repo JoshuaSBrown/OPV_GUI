@@ -17,8 +17,6 @@ class Worker(QtCore.QThread):
             self.sig.emit(xyzData, False)
             return
         self.sig.emit(xyzData, True)
-        # print(xyzData)
-        # return xyzData
 
 
 class Slave(QtCore.QThread):
@@ -44,6 +42,8 @@ class Slave(QtCore.QThread):
                       self.end)
 
 def clearBox(plotWidget):
-    print("The plotWidget has", len(plotWidget.items), "items when it should have 3")
+    print("The plotWidget has",
+          len(plotWidget.items),
+          "items when it should have 3")
     for i in range(len(plotWidget.items) - 1, 2, -1):
         plotWidget.removeItem(plotWidget.items[i])

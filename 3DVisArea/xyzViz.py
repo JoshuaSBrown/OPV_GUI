@@ -78,6 +78,11 @@ class xyzViz(QtGui.QWidget):
         numThreads = 10
         self.coloristhere = True
         self.numThreads = numThreads
+        self.progress = QtGui.QProgressBar(self)
+        self.progress.setMaximum(self.numThreads)
+        self.progress.setMinimum(0)
+        self.progress.setValue(0)
+        self.show()
         step = int(dataLen / numThreads)
         self.num = 0
         for i in range(1, numThreads):
@@ -249,11 +254,14 @@ class xyzViz(QtGui.QWidget):
         self.pos[begin:end] = pos[begin:end]
         self.num += 1
         print(self.num, "/", self.numThreads)
+        self.progress.setValue(self.num)
+        self.show()
         if self.num == self.numThreads:
             energy = [float(i) for i in self.energy] # This is for python3 compatibility
             minEnergy = min(energy)
             maxEnergy = max(energy)
             # self.normEnergy = map(lambda x:(x - minEnergy)/(maxEnergy - minEnergy), energy)
+            # self.progress.close()
             self.normEnergy = divide(
                 subtract(energy, minEnergy), subtract(maxEnergy, minEnergy))
             self.color = hot(self.normEnergy)

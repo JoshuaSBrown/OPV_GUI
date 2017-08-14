@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 
 OPV GUI
@@ -189,9 +189,7 @@ class MainWindow(QtGui.QWidget):
         self.pathWidgets.setLayout(self.pathWidgetLayout)
         self.pathWidgetLayout.addWidget(self.clearBox)
 
-        self.clearBox.clicked.connect(
-            lambda: clearBox(self.plotWidget)
-        )
+        self.clearBox.clicked.connect(lambda: clearBox(self.plotWidget))
 
         self.loadPathButton.clicked.connect(
             lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))
