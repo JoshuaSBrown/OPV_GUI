@@ -10,7 +10,7 @@ from matplotlib.cm import *
 import itertools
 #import MainWindow
 from MainWindow import *
-from worker import Worker
+from worker import Worker, clearBox
 
 
 class percViz(QtGui.QWidget):
@@ -22,10 +22,18 @@ class percViz(QtGui.QWidget):
         # main = MainWindow.MainWindow()
 
     def loadPercFile(self, percChargeIdCB, plotWidget):
+
+        clearBox(plotWidget)
+        self.__init__()
+
         self.plotWidget = plotWidget
         self.percChargeIdCB = percChargeIdCB
         percFileName = QtGui.QFileDialog.getOpenFileName(
             self, 'Load Perc File', '.')
+        if ".perc" not in percFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .perc File or is currupted")
+            return
 
         self.worker = Worker(percFileName, self.mysignal, ".perc")
         self.worker.start()
@@ -83,7 +91,7 @@ class percViz(QtGui.QWidget):
             else:
                 self.percDataDic[currentKey].append(temp)
 
-        for k, v in self.percDataDic.iteritems():
+        for k, v in iter(self.percDataDic.items()):
 
             dataLen = len(v)
 
@@ -112,7 +120,7 @@ class percViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-        for k, v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
@@ -125,13 +133,13 @@ class percViz(QtGui.QWidget):
             for k, v in self.plotDic.iteritems():
                 try:
                     plotWidget.removeItem(self.plotDic[k])
-                    print "removed: ", k, self.plotDic[k]
+                    print("removed: ", k, self.plotDic[k])
                 except ValueError:
                     pass
 
-        for k, v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             if k == chargeID:
-                print "added: ", k, self.plotDic[k]
+                print("added:", k, self.plotDic[k])
                 plotWidget.addItem(self.plotDic[k])
         """
 

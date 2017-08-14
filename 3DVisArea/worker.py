@@ -1,7 +1,4 @@
 from PyQt4 import QtCore
-from matplotlib.cm import hot
-from numpy import array
-import pyqtgraph.opengl as gl
 
 
 class Worker(QtCore.QThread):
@@ -13,21 +10,13 @@ class Worker(QtCore.QThread):
 
     def run(self):
         xyzData = list()
-        if self.fType not in self.file:
-            self.sig.emit(xyzData, False)
-            return
-
         try:
             with open(self.file) as xyzFile:
-                print "Started reading", self.file
                 xyzData = xyzFile.readlines()
-                print "Finished reading", self.file
         except IOError:
             self.sig.emit(xyzData, False)
             return
         self.sig.emit(xyzData, True)
-        # print(xyzData)
-        # return xyzData
 
 
 class Slave(QtCore.QThread):
@@ -41,22 +30,20 @@ class Slave(QtCore.QThread):
         self.sig = sig
 
     def run(self):
-        print "Started", self.begin
         for i in range(self.begin, self.end):
             self.xyzData[i] = self.xyzData[i].split('\t')
+            # self.xyzData[i] = self.xyzData[i].split('\t')
             # print self.xyzData[i]
             del self.xyzData[i][0]  # delete "C"
             self.pos[i] = tuple(self.xyzData[i][0:3])
             self.energy[i] = self.xyzData[i][3]
             # progress.setText(str(i) + "/" + str(dataLen))
-        print "Ended", self.begin
         self.sig.emit(self.xyzData, self.energy, self.pos, self.begin,
                       self.end)
 
-
-def clearPlot(plotWidget, plotAlreadyThere, currentPlotObj):
-    items = plotWidget.items
-    for i in range(3, len(items)):
-        plotWidget.removeItem(items[i])
-    plotAlreadyThere = False
-    currentPlotObj = None
+def clearBox(plotWidget):
+    print("The plotWidget has",
+          len(plotWidget.items),
+          "items when it should have 3")
+    for i in range(len(plotWidget.items) - 1, 2, -1):
+        plotWidget.removeItem(plotWidget.items[i])

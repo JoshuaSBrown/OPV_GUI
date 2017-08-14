@@ -8,7 +8,7 @@ import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
 import itertools
-from worker import Worker
+from worker import Worker, clearBox
 
 
 class trapViz(QtGui.QWidget):
@@ -19,21 +19,20 @@ class trapViz(QtGui.QWidget):
         super(trapViz, self).__init__()
 
     def loadTrapFile(self, trapChargeIdCB, plotWidget):
+        clearBox(plotWidget)
+        self.__init__()
         self.trapChargeIdCB = trapChargeIdCB
         self.plotWidget = plotWidget
-        trapFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load Trap File', '.')
+        trapFileName = QtGui.QFileDialog.getOpenFileName(
+            self, 'Load Trap File', '.')
+        if ".trap" not in trapFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .trap File or is currupted")
+            return
+
         self.worker = Worker(trapFileName, self.mysignal, ".trap")
         self.worker.start()
         self.mysignal.connect(self.printData)
-        # try:
-        #     with open(trapFileName) as trapFile:
-        #         trapData = trapFile.readlines()
-        # except IOError:
-        #     return
-
-        # if not ".trap" in trapFileName:
-        #     QtGui.QMessageBox.about(self, "Error", "Not a Trap File")
-        #     return
 
     def printData(self, trapData, mybool):
         if not mybool:
@@ -47,22 +46,19 @@ class trapViz(QtGui.QWidget):
         self.color = empty((dataLen, 4))
 
         chargeIdColorCode = {
-
-                0: (1, 0, 0, 1), # Red
-                1: (1, .5, 0, 1), # Orange
-                2: (1, 1, 0, 1), # Yellow
-                3: (.5, 1, 0, 1), # Spring Green
-                4: (0, 1, 0, 1), # Green
-                5: (0, 1, .5, 1), # Turquoise
-                6: (0, 1, 1, 1), # Cyan
-                7: (0, .5, 1, 1), # Ocean
-                8: (0, 0, 1, 1), # Blue
-                9: (.5, 0, 1, 1), # Violet
-                10: (1, 0, 1, 1), # Magenta
-                11: (1, 0, .5, 1), # Raspberry
-
-                }
-
+            0: (1, 0, 0, 1),  # Red
+            1: (1, .5, 0, 1),  # Orange
+            2: (1, 1, 0, 1),  # Yellow
+            3: (.5, 1, 0, 1),  # Spring Green
+            4: (0, 1, 0, 1),  # Green
+            5: (0, 1, .5, 1),  # Turquoise
+            6: (0, 1, 1, 1),  # Cyan
+            7: (0, .5, 1, 1),  # Ocean
+            8: (0, 0, 1, 1),  # Blue
+            9: (.5, 0, 1, 1),  # Violet
+            10: (1, 0, 1, 1),  # Magenta
+            11: (1, 0, .5, 1),  # Raspberry
+        }
 
         idList = []
         self.chargeIdDic = {}
@@ -80,22 +76,22 @@ class trapViz(QtGui.QWidget):
             else:
                 self.trapDataDic[currentKey].append(temp)
 
-
-        for k,v in self.trapDataDic.iteritems():
+        for k, v in iter(self.trapDataDic.items()):
 
             dataLen = len(v)
 
-            self.pos = empty((dataLen,3))
+            self.pos = empty((dataLen, 3))
             self.size = empty((dataLen))
-            self.color = empty((dataLen,4))
+            self.color = empty((dataLen, 4))
 
-            for i,j in enumerate(v):
+            for i, j in enumerate(v):
 
                 self.pos[i] = tuple(v[i][0:3])
                 self.size[i] = .5
                 self.color[i] = chargeIdColorCode[int(k)]
 
-            self.plotDic[k] = gl.GLScatterPlotItem(pos=self.pos, size=self.size, color=self.color, pxMode=False)
+            self.plotDic[k] = gl.GLScatterPlotItem(
+                pos=self.pos, size=self.size, color=self.color, pxMode=False)
 
         idList.sort()
         self.trapChargeIdCB.setEnabled(True)
@@ -109,9 +105,7 @@ class trapViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-
-
-        for k,v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
@@ -121,16 +115,16 @@ class trapViz(QtGui.QWidget):
 
         chargeID = str(self.trapChargeIdCB.currentText())
         if chargeID != "View All":
-            for k,v in self.plotDic.iteritems():
+            for k, v in self.plotDic.iteritems():
                 try:
                     plotWidget.removeItem(self.plotDic[k])
-                    print "removed: ", k, self.plotDic[k]
+                    print("removed: ", k, self.plotDic[k])
                 except ValueError:
                     pass
 
-        for k,v in self.plotDic.iteritems():
+        for k, v in iter(self.plotDic.items()):
             if k == chargeID:
-                print "added: ", k, self.plotDic[k]
+                print("added: ", k, self.plotDic[k])
                 plotWidget.addItem(self.plotDic[k])
         """
 

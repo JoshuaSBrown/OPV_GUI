@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 
 OPV GUI
@@ -19,7 +19,7 @@ import xyzViz
 import pathViz
 import percViz
 import trapViz
-from worker import clearPlot
+from worker import clearBox
 
 
 class MainWindow(QtGui.QWidget):
@@ -168,7 +168,6 @@ class MainWindow(QtGui.QWidget):
         """
         self.pathWidgets = QtGui.QGroupBox("Path Visualization")
         self.pathWidgetLayout = QtGui.QVBoxLayout()
-
         self.loadPathButton = QtGui.QPushButton("Load Path File")
 
         self.pathChargeIdLabel = QtGui.QLabel("Charge ID")
@@ -190,9 +189,7 @@ class MainWindow(QtGui.QWidget):
         self.pathWidgets.setLayout(self.pathWidgetLayout)
         self.pathWidgetLayout.addWidget(self.clearBox)
 
-        self.clearBox.clicked.connect(
-            lambda: clearPlot(self.plotWidget, self.plotAlreadyThere, self.currentPlotObj)
-        )
+        self.clearBox.clicked.connect(lambda: clearBox(self.plotWidget))
 
         self.loadPathButton.clicked.connect(
             lambda: path.loadPathFile(self.plotWidget, self.pathChargeIdCB))
@@ -207,7 +204,6 @@ class MainWindow(QtGui.QWidget):
         """
         self.percWidgets = QtGui.QGroupBox("Perc Visualization")
         self.percWidgetLayout = QtGui.QVBoxLayout()
-
         self.loadPercButton = QtGui.QPushButton("Load Perc File")
 
         self.percChargeIdLabel = QtGui.QLabel("Charge ID")

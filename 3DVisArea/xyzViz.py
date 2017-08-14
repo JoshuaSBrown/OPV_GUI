@@ -6,7 +6,7 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
-from worker import Worker, Slave
+from worker import Worker, Slave, clearBox
 
 # import itertools
 
@@ -15,28 +15,23 @@ class xyzViz(QtGui.QWidget):
 
     mysignal = QtCore.pyqtSignal(list, bool)
     slaves = QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
-    # slaves1 =  QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
-    # slaves2 =  QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
-    # slaves3 =  QtCore.pyqtSignal(list, ndarray, ndarray, int, int)
-    # slv0 = None
-    # slv1 = None
-    # slv2 = None
-    # slv3 = None
     slaveArr = []
 
     def __init__(self):
         super(xyzViz, self).__init__()
 
-        # add init here
-
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel,
                     yPlaneLabel, zPlaneLabel):
+        clearBox(plotWidget)
+        self.__init__()
         self.plotWidget = plotWidget
         self.xPlaneLabel = xPlaneLabel
         self.yPlaneLabel = yPlaneLabel
         self.zPlaneLabel = zPlaneLabel
         widgetItems = plotWidget.items
         prevPlot = []
+        self.color = []
+        # self.xyzData = []
 
         if len(widgetItems) > 3:
             for i in range(3, len(widgetItems)):
@@ -46,25 +41,22 @@ class xyzViz(QtGui.QWidget):
 #             plotWidget.removeItem(prevPlot)
 #         except:
 #             print "No older plots to remove"
+        self.dataLen = 0
 
-        xyzFileName = QtGui.QFileDialog.getOpenFileName(self, 'Load XYZ File',
-                                                        '../Data')
+        xyzFileName = QtGui.QFileDialog.getOpenFileName(
+            self, 'Load XYZ File', '../Data')
+
+        if ".xyz" not in xyzFileName:
+            QtGui.QMessageBox.about(self, "Error",
+                                    "Not a .xyz File or is currupted")
+            return
+
         self.worker = Worker(xyzFileName, self.mysignal, ".xyz")
         self.worker.start()
         self.mysignal.connect(self.printData)
 
         if plotAlreadyThere:
             self.size = zeros(self.previousDataSize)
-
-        # if ".xyz" not in xyzFileName:
-        #     QtGui.QMessageBox.about(self, "Error", "Not a xyz File")
-        #     return
-
-        # try:
-        #     with open(xyzFileName) as xyzFile:
-        #         self.xyzData = xyzFile.readlines()
-        # except IOError:
-        #     return
 
     def printData(self, xyzData, mybool):
         if not mybool:
@@ -83,13 +75,15 @@ class xyzViz(QtGui.QWidget):
         self.previousDataSize = dataLen
         self.coloristhere = False
         self.slaves.connect(self.processData)
-        # self.slaves1.connect(self.processData)
-        # self.slaves2.connect(self.processData)
-        # self.slaves3.connect(self.processData)
-        numThreads = 30
+        numThreads = 10
         self.coloristhere = True
         self.numThreads = numThreads
-        step = dataLen / numThreads
+        self.progress = QtGui.QProgressBar(self)
+        self.progress.setMaximum(self.numThreads)
+        self.progress.setMinimum(0)
+        self.progress.setValue(0)
+        self.show()
+        step = int(dataLen / numThreads)
         self.num = 0
         for i in range(1, numThreads):
             temp = Slave(self.xyzData, self.energy,
@@ -100,26 +94,8 @@ class xyzViz(QtGui.QWidget):
                       step * (numThreads - 1), dataLen, self.pos, self.slaves)
         final.start()
         self.slaveArr.append(final)
-        # self.slv0 = Slave(self.xyzData, self.energy, step*0, step*1, self.pos, self.slaves)
-        # self.slv0.start()
-        # self.slv1 = Slave(self.xyzData, self.energy, step*1, step*2, self.pos, self.slaves1)
-        # self.slv1.start()
-        # self.slv2 = Slave(self.xyzData, self.energy, step*2, step*3, self.pos, self.slaves2)
-        # self.slv2.start()
-        # self.slv3 = Slave(self.xyzData, self.energy, step*3, dataLen, self.pos, self.slaves3)
-        # self.slv3.start()
-
-        # # p2 = Slave(self.xyzData, self.energy, step, step*2)
-        # =====================================================
-        # for i, j in enumerate(self.xyzData):
-        #     self.xyzData[i] = self.xyzData[i].split('\t')
-        #     # print self.xyzData[i]
-        #     del self.xyzData[i][0]  # delete "C"
-        #     self.pos[i] = tuple(self.xyzData[i][0:3])
-        #     self.energy[i] = self.xyzData[i][3]
 
     def makeSurfaceArea(self):
-
         self.surfaceMade = True
         self.newPos = [None] * len(self.pos)
         self.newColor = [None] * len(self.color)
@@ -175,7 +151,6 @@ class xyzViz(QtGui.QWidget):
             self.zPlaneLE.setEnabled(True)
 
     def changeShape(self, shapeCB, transSlider):
-
         if shapeCB.currentText() == "Square":
             transSlider.blockSignals(True)
             # self.plot.setGLOptions('opaque')
@@ -186,7 +161,6 @@ class xyzViz(QtGui.QWidget):
             transSlider.blockSignals(False)
 
     def changeTrans(self, value):
-
         alpha = float(value) / float(100)
         try:
             if self.coloristhere:
@@ -206,7 +180,6 @@ class xyzViz(QtGui.QWidget):
                                     "Must load a xyz file first.")
 
     def viewAllAreas(self, viewAll, xPlaneLE, yPlaneLE, zPlaneLE):
-
         if viewAll.isChecked():
 
             xPlaneLE.setEnabled(False)
@@ -223,7 +196,6 @@ class xyzViz(QtGui.QWidget):
             zPlaneLE.setEnabled(True)
 
     def changeViewAreas(self, plotAlreadyThere, xPlaneLE, yPlaneLE, zPlaneLE):
-
         if not plotAlreadyThere:
             QtGui.QMessageBox.about(self, "Error",
                                     "Must load a xyz file first.")
@@ -238,17 +210,15 @@ class xyzViz(QtGui.QWidget):
                 for y in range(0, len(yPlaneArea)):
                     for z in range(0, len(zPlaneArea)):
                         self.size[i] = 0
-                        if ((self.pos[i][0] == xPlaneArea[x]) and
-                            (self.pos[i][1] == yPlaneArea[y]) and
-                            (self.pos[i][2] == zPlaneArea[z])):
+                        if ((self.pos[i][0] == xPlaneArea[x])
+                                and (self.pos[i][1] == yPlaneArea[y])
+                                and (self.pos[i][2] == zPlaneArea[z])):
                             visualizeThese.append(i)
 
         for j in range(0, len(visualizeThese)):
             self.size[visualizeThese[j]] = .5
-            #print j, self.pos[visualizeThese[j]]
 
     def parseAreaInput(self, planeArea, maxPos):
-
         planeAreaLE = planeArea
         planeArea = str(planeArea.text())
         planeArea = planeArea.split(",")
@@ -279,22 +249,21 @@ class xyzViz(QtGui.QWidget):
         return planeArea
 
     def processData(self, xyzData, energy, pos, begin, end):
-        # assert isinstance(xyzData, list)
-        # assert isinstance(energy, list)
         self.xyzData[begin:end] = xyzData[begin:end]
         self.energy[begin:end] = energy[begin:end]
         self.pos[begin:end] = pos[begin:end]
-
         self.num += 1
-        print self.num, ":", end, "vs", self.previousDataSize
+        print(self.num, "/", self.numThreads)
+        self.progress.setValue(self.num)
+        self.show()
         if self.num == self.numThreads:
-            energy = map(float, self.energy)
-
+            energy = [float(i) for i in self.energy] # This is for python3 compatibility
             minEnergy = min(energy)
             maxEnergy = max(energy)
             # self.normEnergy = map(lambda x:(x - minEnergy)/(maxEnergy - minEnergy), energy)
+            # self.progress.close()
             self.normEnergy = divide(
-                add(energy, -minEnergy), subtract(maxEnergy, minEnergy))
+                subtract(energy, minEnergy), subtract(maxEnergy, minEnergy))
             self.color = hot(self.normEnergy)
             maxPos = self.pos[self.previousDataSize - 1]
             self.xMaxPos = int(maxPos[0])
@@ -307,8 +276,3 @@ class xyzViz(QtGui.QWidget):
                 pos=self.pos, size=self.size, color=self.color, pxMode=False)
             self.plotWidget.addItem(self.plot)
             self.plotAlreadyThere = True
-            plotAlreadyThere = True
-
-
-if __name__ == '__main__':
-    main()
