@@ -22,7 +22,6 @@ class xyzViz(QtGui.QWidget):
 
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel,
                     yPlaneLabel, zPlaneLabel):
-        clearBox(plotWidget)
         self.__init__()
         self.plotWidget = plotWidget
         self.xPlaneLabel = xPlaneLabel

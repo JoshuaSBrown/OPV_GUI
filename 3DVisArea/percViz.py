@@ -22,8 +22,6 @@ class percViz(QtGui.QWidget):
         # main = MainWindow.MainWindow()
 
     def loadPercFile(self, percChargeIdCB, plotWidget):
-
-        clearBox(plotWidget)
         self.__init__()
 
         self.plotWidget = plotWidget

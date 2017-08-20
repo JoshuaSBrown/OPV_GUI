@@ -19,7 +19,6 @@ class trapViz(QtGui.QWidget):
         super(trapViz, self).__init__()
 
     def loadTrapFile(self, trapChargeIdCB, plotWidget):
-        clearBox(plotWidget)
         self.__init__()
         self.trapChargeIdCB = trapChargeIdCB
         self.plotWidget = plotWidget
