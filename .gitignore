@@ -1,0 +1,10 @@
+.vscode/*
+.idea/*
+Data/*
+tags
+*.pyc
+TAGS
+GTAGS
+GPATH
+GRTAGS
+GSYMS
