@@ -83,8 +83,7 @@ class MainWindow(QtGui.QWidget):
         self.xyzWidgets = QtGui.QGroupBox("XYZ Visualization")
 
         loadButton = QtGui.QPushButton("Load XYZ File")
-
-        xyzShapeLabel = QtGui.QLabel("Shape")
+        # xyzShapeLabel = QtGui.QLabel("Shape")
         self.xyzShapeCB = QtGui.QComboBox()
         self.xyzShapeCB.addItems(["Circle", "3D Cube"])
         self.xyzShapeCB.setCurrentIndex(0)
@@ -115,8 +114,8 @@ class MainWindow(QtGui.QWidget):
 
         submitButton = QtGui.QPushButton("Submit")
 
-        spacer = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum,
-                                   QtGui.QSizePolicy.Expanding)
+        # spacer = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum,
+        #                            QtGui.QSizePolicy.Expanding)
 
         doge = QtGui.QLabel()
         dogeImg = QtGui.QPixmap(
@@ -139,30 +138,42 @@ class MainWindow(QtGui.QWidget):
         # adding widgets to respective layouts
         self.xyzWidgetLayout.setAlignment(QtCore.Qt.AlignTop)
         self.xyzWidgetLayout.addWidget(loadButton)
-        self.xyzWidgetLayout.addWidget(xyzShapeLabel)
-        self.xyzWidgetLayout.addWidget(self.xyzShapeCB)
+        # NOTE: I have removed the xLayout widgets here
+        # FIXME: Most recent changes has broken xyz
+        # self.xyzWidgetLayout.addWidget(xyzShapeLabel)
+        # self.xyzWidgetLayout.addWidget(self.xyzShapeCB)
         self.xyzWidgetLayout.addWidget(transLabel)
         self.xyzWidgetLayout.addWidget(self.transSlider)
-        self.xyzWidgetLayout.addWidget(visibleAreas)
-        self.xyzWidgetLayout.addItem(spacer)
+        # self.xyzWidgetLayout.addWidget(visibleAreas)
+        # self.xyzWidgetLayout.addItem(spacer)
+        self.progress = QtGui.QProgressBar()
+        progress_lable = QtGui.QLabel("Progress Bar for .xyz files")
+        self.xyzWidgetLayout.addWidget(progress_lable)
+        self.xyzWidgetLayout.addWidget(self.progress)
+        self.xyzWidgetLayout.addWidget(QtGui.QLabel("Enter energy Levels"))
+        self.energyBox = QtGui.QLineEdit()
+        self.submitEnergy = QtGui.QPushButton("Submit Energy level")
+        self.xyzWidgetLayout.addWidget(self.energyBox)
+        self.xyzWidgetLayout.addWidget(self.submitEnergy)
         self.xyzWidgetLayout.addWidget(doge)
         self.xyzWidgets.setLayout(self.xyzWidgetLayout)
 
         # connections
-        submitButton.clicked.connect(
-            lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
-        )
+        # submitButton.clicked.connect(
+        #     lambda: xyz.changeViewAreas(self.plotAlreadyThere, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
+        # )
 
         loadButton.clicked.connect(
-            lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel)
+            lambda: xyz.loadXYZFile(self.plotWidget, self.plotAlreadyThere, self.xPlaneLabel, self.yPlaneLabel, self.zPlaneLabel, self.progress)
         )
 
-        self.xyzShapeCB.currentIndexChanged.connect(
-            lambda: xyz.changeShape(self.xyzShapeCB, self.transSlider))
+        self.submitEnergy.clicked.connect(lambda: self.useEnergy())
+        # self.xyzShapeCB.currentIndexChanged.connect(
+        #     lambda: xyz.changeShape(self.xyzShapeCB, self.transSlider))
 
-        self.viewAll.toggled.connect(
-            lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
-        )
+        # self.viewAll.toggled.connect(
+        #     lambda: xyz.viewAllAreas(self.viewAll, self.xPlaneLE, self.yPlaneLE, self.zPlaneLE)
+        # )
         """
         PATH Visualization
         """
@@ -276,6 +287,18 @@ class MainWindow(QtGui.QWidget):
         self.resize(800, 600)
         self.setWindowTitle("3D Visualization Area")
         self.show()
+
+    def useEnergy(self):
+        """
+            Graph the given energy level
+        """
+        text = self.energyBox.text()
+        try:
+            text = int(text)
+        except:
+            print("Please enter a number")
+            return
+        print(text)
 
 
 def main():

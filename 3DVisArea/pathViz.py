@@ -17,11 +17,7 @@ class pathViz(QtGui.QWidget):
     def __init__(self):
         super(pathViz, self).__init__()
 
-        # add init here
-
     def loadPathFile(self, plotWidget, chargeIdCB):
-
-        clearBox(plotWidget)
         self.__init__()
         self.plotWidget = plotWidget
         widgetItems = self.plotWidget.items

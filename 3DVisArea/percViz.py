@@ -22,8 +22,6 @@ class percViz(QtGui.QWidget):
         # main = MainWindow.MainWindow()
 
     def loadPercFile(self, percChargeIdCB, plotWidget):
-
-        clearBox(plotWidget)
         self.__init__()
 
         self.plotWidget = plotWidget
@@ -105,8 +103,10 @@ class percViz(QtGui.QWidget):
                 self.size[i] = .5
                 self.color[i] = chargeIdColorCode[int(k)]
 
-            self.plotDic[k] = gl.GLScatterPlotItem(
-                pos=self.pos, size=self.size, color=self.color, pxMode=False)
+            # self.plotDic[k] = gl.GLScatterPlotItem(
+            #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
+            self.plotDic[k] = gl.GLLinePlotItem(
+                pos=self.pos, color=self.color)
 
         idList.sort()
         self.percChargeIdCB.setEnabled(True)

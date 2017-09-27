@@ -6,7 +6,7 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from numpy import *
 from matplotlib.cm import *
-from worker import Worker, Slave, clearBox
+from worker import Worker, Slave  # , clearBox
 
 # import itertools
 
@@ -21,13 +21,13 @@ class xyzViz(QtGui.QWidget):
         super(xyzViz, self).__init__()
 
     def loadXYZFile(self, plotWidget, plotAlreadyThere, xPlaneLabel,
-                    yPlaneLabel, zPlaneLabel):
-        clearBox(plotWidget)
+                    yPlaneLabel, zPlaneLabel, progress_bar):
         self.__init__()
         self.plotWidget = plotWidget
         self.xPlaneLabel = xPlaneLabel
         self.yPlaneLabel = yPlaneLabel
         self.zPlaneLabel = zPlaneLabel
+        self.progress = progress_bar
         widgetItems = plotWidget.items
         prevPlot = []
         self.color = []
@@ -78,11 +78,9 @@ class xyzViz(QtGui.QWidget):
         numThreads = 10
         self.coloristhere = True
         self.numThreads = numThreads
-        self.progress = QtGui.QProgressBar(self)
         self.progress.setMaximum(self.numThreads)
         self.progress.setMinimum(0)
         self.progress.setValue(0)
-        self.show()
         step = int(dataLen / numThreads)
         self.num = 0
         for i in range(1, numThreads):
@@ -255,7 +253,7 @@ class xyzViz(QtGui.QWidget):
         self.num += 1
         print(self.num, "/", self.numThreads)
         self.progress.setValue(self.num)
-        self.show()
+        # self.show()
         if self.num == self.numThreads:
             energy = [float(i) for i in self.energy] # This is for python3 compatibility
             minEnergy = min(energy)
@@ -269,9 +267,9 @@ class xyzViz(QtGui.QWidget):
             self.xMaxPos = int(maxPos[0])
             self.yMaxPos = int(maxPos[1])
             self.zMaxPos = int(maxPos[2])
-            self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
-            self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
-            self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
+            # self.xPlaneLabel.setText("X-Plane: Max %i" % self.xMaxPos)
+            # self.yPlaneLabel.setText("Y-Plane: Max %i" % self.yMaxPos)
+            # self.zPlaneLabel.setText("Z-Plane: Max %i" % self.zMaxPos)
             self.plot = gl.GLScatterPlotItem(
                 pos=self.pos, size=self.size, color=self.color, pxMode=False)
             self.plotWidget.addItem(self.plot)
