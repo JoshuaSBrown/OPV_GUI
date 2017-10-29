@@ -103,8 +103,6 @@ class percViz(QtGui.QWidget):
                 self.size[i] = .5
                 self.color[i] = chargeIdColorCode[int(k)]
 
-            # self.plotDic[k] = gl.GLScatterPlotItem(
-            #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
             self.plotDic[k] = gl.GLLinePlotItem(
                 pos=self.pos, color=self.color)
 

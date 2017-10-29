@@ -86,6 +86,7 @@ class pathViz(QtGui.QWidget):
 
         idList = []
         self.chargeIdDic = {}
+        self.plotDic = {}
 
         for i, j in enumerate(pathData):
 
@@ -96,13 +97,19 @@ class pathViz(QtGui.QWidget):
             chargeID = int(pathData[i][3])
 
             if chargeID in self.chargeIdDic.keys():
-                self.chargeIdDic.setdefault(chargeID, []).append(i)
+                self.chargeIdDic[chargeID].append(self.pos[i])
             else:
-                self.chargeIdDic[chargeID] = [i]
+                self.chargeIdDic[chargeID] = [self.pos[i]]
 
             self.size[i] = .5
             self.color[i] = chargeIdColorCode[chargeID]
 
+        for k, v in enumerate(self.chargeIdDic.items()):
+            v = v[1]
+            self.plotDic[k] =  gl.GLLinePlotItem(
+                pos=v, color=chargeIdColorCode[int(k)])
+
+        print(self.plotDic)
         idList = list(set(idList))
         idList.sort()
         self.chargeIdCB.setEnabled(True)
@@ -126,9 +133,11 @@ class pathViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-        self.plot = gl.GLScatterPlotItem(
-            pos=self.pos, size=self.size, color=self.color, pxMode=False)
-        self.plotWidget.addItem(self.plot)
+        # self.plot = gl.GLScatterPlotItem(
+        #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
+        # self.plotWidget.addItem(self.plot)
+        for k, v in iter(self.plotDic.items()):
+            self.plotWidget.addItem(v)
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
 
