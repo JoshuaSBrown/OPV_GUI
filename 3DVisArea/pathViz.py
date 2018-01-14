@@ -155,10 +155,10 @@ class pathViz(QtGui.QWidget):
             for i in range(0, len(self.pos)):
                 self.size[i] = 0
 
-            for k, v in self.chargeIdDic.iteritems():
+            for k, v in iter(self.chargeIdDic.items()):
                 for i in range(0, len(self.pos)):
                     if chargeID == k:
-                        self.size[v] = .5
+                        self.size[self.chargeIdDic[k]] = .5
 
     def changeShape(self, shapeCB):
 

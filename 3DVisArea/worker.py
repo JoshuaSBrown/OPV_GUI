@@ -41,9 +41,11 @@ class Slave(QtCore.QThread):
         self.sig.emit(self.xyzData, self.energy, self.pos, self.begin,
                       self.end)
 
-def clearBox(plotWidget):
-    print("The plotWidget has",
-          len(plotWidget.items),
-          "items when it should have 3")
-    for i in range(len(plotWidget.items) - 1, 2, -1):
-        plotWidget.removeItem(plotWidget.items[i])
+
+def clearBox(plotWidget, energy=None):
+    if energy is None:
+        print("The plotWidget has",
+              len(plotWidget.items),
+              "items when it should have 3")
+        for i in range(len(plotWidget.items) - 1, 2, -1):
+            plotWidget.removeItem(plotWidget.items[i])

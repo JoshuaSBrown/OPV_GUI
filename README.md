@@ -11,5 +11,5 @@ This is the git repository for the OPV GUI project.
 
 Note: The file format for perc files  
 x, y, z, charge, smallTime, GlobalTIme  
-~~Task 2: make the path light up based on its path  ~~
+~~Task 2: make the path light up based on its path~~  
 Much Later: animations
