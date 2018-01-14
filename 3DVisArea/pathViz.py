@@ -135,8 +135,8 @@ class pathViz(QtGui.QWidget):
         # self.plot = gl.GLScatterPlotItem(
         #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
         # self.plotWidget.addItem(self.plot)
-        for k, v in iter(self.plotDic.items()):
-            self.plotWidget.addItem(self.plotDic[k])
+        # for k, v in iter(self.plotDic.items()):
+        #     self.plotWidget.addItem(self.plotDic[k])
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
 
@@ -144,21 +144,23 @@ class pathViz(QtGui.QWidget):
 
         chargeID = chargeIdCB.currentText()
 
-        print(chargeID)
+        for k, v in iter(self.plotDic.items()):
+            try:
+                self.plotWidget.removeItem(self.plotDic[k])
+                print("removed: ", k, self.plotDic[k])
+            except ValueError:
+                pass
 
         if chargeID == "View All":
-            for i in range(0, len(self.pos)):
-                self.size[i] = .5
+            for k, v in iter(self.plotDic.items()):
+                print("added:", k, self.plotDic[k])
+                self.plotWidget.addItem(self.plotDic[k])
         else:
-            chargeID = int(chargeID)
+            for k, v in iter(self.plotDic.items()):
+                if k == int(chargeID):
+                    print("added:", k, self.plotDic[k])
+                    self.plotWidget.addItem(self.plotDic[k])
 
-            for i in range(0, len(self.pos)):
-                self.size[i] = 0
-
-            for k, v in iter(self.chargeIdDic.items()):
-                for i in range(0, len(self.pos)):
-                    if chargeID == k:
-                        self.size[self.chargeIdDic[k]] = .5
 
     def changeShape(self, shapeCB):
 
