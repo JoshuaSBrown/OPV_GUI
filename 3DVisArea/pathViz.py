@@ -70,16 +70,16 @@ class pathViz(QtGui.QWidget):
         self.color = empty((dataLen, 4))
 
         chargeIdColorCode = {
-            0: (1, 0, 0, .5),  # Red
-            1: (1, .5, 0, .5),  # Orange
-            2: (1, 1, 0, .5),  # Yellow
+            8: (1, 0, 0, .5),  # Red
+            9: (1, .5, 0, .5),  # Orange
+            0: (1, 1, 0, .5),  # Yellow
             3: (.5, 1, 0, .5),  # Spring Green
             4: (0, 1, 0, .5),  # Green
             5: (0, 1, .5, .5),  # Turquoise
             6: (0, 1, 1, .5),  # Cyan
-            7: (0, .5, 1, .5),  # Ocean
-            8: (0, 0, 1, .5),  # Blue
-            9: (.5, 0, 1, .5),  # Violet
+            2: (0, .5, 1, .5),  # Ocean
+            7: (0, 0, 1, .5),  # Blue
+            1: (.5, 0, 1, .5),  # Violet
             10: (1, 0, 1, .5),  # Magenta
             11: (1, 0, .5, .5),  # Raspberry
         }
