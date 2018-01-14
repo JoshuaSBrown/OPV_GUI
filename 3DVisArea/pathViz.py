@@ -105,11 +105,10 @@ class pathViz(QtGui.QWidget):
             self.color[i] = chargeIdColorCode[chargeID]
 
         for k, v in enumerate(self.chargeIdDic.items()):
-            v = v[1]
-            self.plotDic[k] =  gl.GLLinePlotItem(
-                pos=v, color=chargeIdColorCode[int(k)])
+            self.plotDic[k] = gl.GLLinePlotItem(
+                pos=array(self.chargeIdDic[k]),
+                color=chargeIdColorCode[int(k)])
 
-        print(self.plotDic)
         idList = list(set(idList))
         idList.sort()
         self.chargeIdCB.setEnabled(True)
@@ -137,7 +136,7 @@ class pathViz(QtGui.QWidget):
         #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
         # self.plotWidget.addItem(self.plot)
         for k, v in iter(self.plotDic.items()):
-            self.plotWidget.addItem(v)
+            self.plotWidget.addItem(self.plotDic[k])
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
 
