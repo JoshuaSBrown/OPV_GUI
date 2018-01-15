@@ -104,8 +104,8 @@ class trapViz(QtGui.QWidget):
         yMaxPos = int(maxPos[1])
         zMaxPos = int(maxPos[2])
 
-        for k, v in iter(self.plotDic.items()):
-            self.plotWidget.addItem(self.plotDic[k])
+        # for k, v in iter(self.plotDic.items()):
+        #     self.plotWidget.addItem(self.plotDic[k])
 
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
@@ -113,18 +113,34 @@ class trapViz(QtGui.QWidget):
     def selectTrapChargeID(self, plotWidget):
 
         chargeID = str(self.trapChargeIdCB.currentText())
-        if chargeID != "View All":
-            for k, v in self.plotDic.iteritems():
-                try:
-                    plotWidget.removeItem(self.plotDic[k])
-                    print("removed: ", k, self.plotDic[k])
-                except ValueError:
-                    pass
+        # if chargeID != "View All":
+        #     for k, v in self.plotDic.iteritems():
+        #         try:
+        #             plotWidget.removeItem(self.plotDic[k])
+        #             print("removed: ", k, self.plotDic[k])
+        #         except ValueError:
+        #             pass
 
+        # for k, v in iter(self.plotDic.items()):
+        #     if k == chargeID:
+        #         print("added: ", k, self.plotDic[k])
+        #         plotWidget.addItem(self.plotDic[k])
         for k, v in iter(self.plotDic.items()):
-            if k == chargeID:
-                print("added: ", k, self.plotDic[k])
+            try:
+                plotWidget.removeItem(self.plotDic[k])
+                print("removed: ", k, self.plotDic[k])
+            except ValueError:
+                pass
+
+        if chargeID == "View All":
+            for k, v in iter(self.plotDic.items()):
+                print("added:", k, self.plotDic[k])
                 plotWidget.addItem(self.plotDic[k])
+        else:
+            for k, v in iter(self.plotDic.items()):
+                if k == chargeID:
+                    print("added:", k, self.plotDic[k])
+                    plotWidget.addItem(self.plotDic[k])
         """
 
         if chargeID == "View All":

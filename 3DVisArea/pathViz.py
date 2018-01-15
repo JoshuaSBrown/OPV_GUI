@@ -161,7 +161,6 @@ class pathViz(QtGui.QWidget):
                     print("added:", k, self.plotDic[k])
                     self.plotWidget.addItem(self.plotDic[k])
 
-
     def changeShape(self, shapeCB):
 
         if shapeCB.currentText() == "Square":
