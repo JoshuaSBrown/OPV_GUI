@@ -101,7 +101,7 @@ class percViz(QtGui.QWidget):
 
                 self.pos[i] = tuple(v[i][0:3])
                 self.size[i] = .5
-                self.color[i] = chargeIdColorCode[int(k)]
+                self.color[i] = chargeIdColorCode[int(k)%len(chargeIdColorCode)]
 
             self.plotDic[k] = gl.GLLinePlotItem(
                 pos=self.pos, color=self.color)
