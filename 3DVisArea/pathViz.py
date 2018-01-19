@@ -94,6 +94,7 @@ class pathViz(QtGui.QWidget):
             self.pos[i] = tuple(pathData[i][0:3])
 
             idList.append(pathData[i][3])
+            # TODO: Color for the different charge repeats for now
             chargeID = int(pathData[i][3]) % len(chargeIdColorCode)
 
             if chargeID in self.chargeIdDic.keys():
