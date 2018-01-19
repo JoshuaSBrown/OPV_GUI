@@ -70,16 +70,16 @@ class pathViz(QtGui.QWidget):
         self.color = empty((dataLen, 4))
 
         chargeIdColorCode = {
-            0: (1, 0, 0, .5),  # Red
-            1: (1, .5, 0, .5),  # Orange
-            2: (1, 1, 0, .5),  # Yellow
+            8: (1, 0, 0, .5),  # Red
+            9: (1, .5, 0, .5),  # Orange
+            0: (1, 1, 0, .5),  # Yellow
             3: (.5, 1, 0, .5),  # Spring Green
             4: (0, 1, 0, .5),  # Green
             5: (0, 1, .5, .5),  # Turquoise
             6: (0, 1, 1, .5),  # Cyan
-            7: (0, .5, 1, .5),  # Ocean
-            8: (0, 0, 1, .5),  # Blue
-            9: (.5, 0, 1, .5),  # Violet
+            2: (0, .5, 1, .5),  # Ocean
+            7: (0, 0, 1, .5),  # Blue
+            1: (.5, 0, 1, .5),  # Violet
             10: (1, 0, 1, .5),  # Magenta
             11: (1, 0, .5, .5),  # Raspberry
         }
@@ -94,7 +94,8 @@ class pathViz(QtGui.QWidget):
             self.pos[i] = tuple(pathData[i][0:3])
 
             idList.append(pathData[i][3])
-            chargeID = int(pathData[i][3])
+            # TODO: Color for the different charge repeats for now
+            chargeID = int(pathData[i][3]) % len(chargeIdColorCode)
 
             if chargeID in self.chargeIdDic.keys():
                 self.chargeIdDic[chargeID].append(self.pos[i])
@@ -102,12 +103,12 @@ class pathViz(QtGui.QWidget):
                 self.chargeIdDic[chargeID] = [self.pos[i]]
 
             self.size[i] = .5
-            self.color[i] = chargeIdColorCode[chargeID]
+            self.color[i] = chargeIdColorCode[chargeID % len(chargeIdColorCode)]
 
         for k, v in enumerate(self.chargeIdDic.items()):
             self.plotDic[k] = gl.GLLinePlotItem(
                 pos=array(self.chargeIdDic[k]),
-                color=chargeIdColorCode[int(k)])
+                color=self.color)
 
         idList = list(set(idList))
         idList.sort()
@@ -135,8 +136,8 @@ class pathViz(QtGui.QWidget):
         # self.plot = gl.GLScatterPlotItem(
         #     pos=self.pos, size=self.size, color=self.color, pxMode=False)
         # self.plotWidget.addItem(self.plot)
-        for k, v in iter(self.plotDic.items()):
-            self.plotWidget.addItem(self.plotDic[k])
+        # for k, v in iter(self.plotDic.items()):
+        #     self.plotWidget.addItem(self.plotDic[k])
         self.plotAlreadyThere = True
         self.previousDataSize = dataLen
 
@@ -144,21 +145,22 @@ class pathViz(QtGui.QWidget):
 
         chargeID = chargeIdCB.currentText()
 
-        print(chargeID)
+        for k, v in iter(self.plotDic.items()):
+            try:
+                self.plotWidget.removeItem(self.plotDic[k])
+                print("removed: ", k, self.plotDic[k])
+            except ValueError:
+                pass
 
         if chargeID == "View All":
-            for i in range(0, len(self.pos)):
-                self.size[i] = .5
+            for k, v in iter(self.plotDic.items()):
+                print("added:", k, self.plotDic[k])
+                self.plotWidget.addItem(self.plotDic[k])
         else:
-            chargeID = int(chargeID)
-
-            for i in range(0, len(self.pos)):
-                self.size[i] = 0
-
-            for k, v in self.chargeIdDic.iteritems():
-                for i in range(0, len(self.pos)):
-                    if chargeID == k:
-                        self.size[v] = .5
+            for k, v in iter(self.plotDic.items()):
+                if k == int(chargeID):
+                    print("added:", k, self.plotDic[k])
+                    self.plotWidget.addItem(self.plotDic[k])
 
     def changeShape(self, shapeCB):
 
